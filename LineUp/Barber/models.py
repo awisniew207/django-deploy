@@ -7,13 +7,12 @@ class Barber(models.Model):
         return self.barber_name
 
 class Customer(models.Model):
-    first_name = models.CharField(max_length=50, default="Firstname")
-    last_name = models.CharField(max_length=50, default="Lastname")
+    username = models.CharField(max_length=50, default="Username")
     email = models.EmailField(unique=True, default="Email")
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.username}"
 
 class Review(models.Model):
     review_title = models.CharField(max_length=50, default="Default")
@@ -22,6 +21,6 @@ class Review(models.Model):
     rating = models.IntegerField(default=5)
     review_text = models.TextField()
     review_date = models.DateField(auto_now_add=True)
-    
+
     def __str__(self):
         return self.review_title
