@@ -12,7 +12,6 @@ def index(request):
 
 def createUser(username, email, password):
     user = User.objects.create_user(username=username, email=email, password=password)
-    # You can also set additional user attributes here if needed
     user.save()
     return user
 
@@ -28,7 +27,7 @@ def signup(request):
         password = request.POST.get('password')
 
         if user_exists(username, email):
-            # Handle the case where the username or email is not unique (e.g., show an error message)
+            # Handle the case where the username or email is not unique
             return render(request, 'Barber/signup.html', {'error_message': 'Username or email already taken'})
 
         try:
@@ -38,7 +37,7 @@ def signup(request):
             user.groups.add(group)
             
         # Redirect the user to a success page
-            return redirect('index')  # Replace 'welcome' with the actual URL name
+            return redirect('index') 
 
         except IntegrityError:
             # Handle other potential errors related to user creation or database constraints
