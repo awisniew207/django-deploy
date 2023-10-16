@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.db.utils import IntegrityError
 from django.db.models import Q
 
+
 def index(request):
     return render(request, 'Barber/index.html')
 
@@ -19,7 +20,7 @@ def user_exists(username, email):
     # Check if a user with the given username or email already exists
     return User.objects.filter(Q(username=username) | Q(email=email)).exists()
 
-def signup(request):
+def customer_signup(request):
     if request.method == 'POST':
         # Handle form submission
         username = request.POST.get('username')
@@ -45,6 +46,34 @@ def signup(request):
     else:
         return render(request, 'Barber/signup.html')
 
+def barber_signup(request):
+    if request.method == 'POST':
+        # Handle form submission
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        if user_exists(username, email):
+            # Handle the case where the username or email is not unique
+            return render(request, 'Barber/signup.html', {'error_message': 'Username or email already taken'})
+
+        try:
+            # Call the createUser function to create the user
+            user = createUser(username, email, password)
+            group = Group.objects.get(name='Customers-Sign')  # Assuming the group already exists
+            user.groups.add(group)
+            
+        # Redirect the user to a success page
+            return redirect('index') 
+
+        except IntegrityError:
+            # Handle other potential errors related to user creation or database constraints
+            return render(request, 'Barber/signup.html', {'error_message': 'An error occurred during registration'})
+    else:
+        return render(request, 'Barber/signup.html')
+
+def shop_signup(request):
+    return
 
 
 
