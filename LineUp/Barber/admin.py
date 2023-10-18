@@ -9,4 +9,5 @@ admin.site.register(Event)
 admin.site.register(Service)
 admin.site.register(EventService)
 admin.site.register(Review)
+admin.site.register(BarberUser)
 
