@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 class Shop(models.Model):
     affiliation_code = models.CharField(unique=True, max_length=20)                            # Each shop has this unique code, needed when creating 
@@ -81,3 +84,18 @@ class Review(models.Model):
         return self.review_title
 
 # Product, Blog Post, Gallery, Transaction will be added as needed 
+
+class BarberUser(AbstractUser):
+    # In any of these fields, adjust max_length as needed 
+    username = models.CharField(max_length=30, unique=True, default="Username")                     # Needed when creating account 
+    password = models.CharField(max_length=30, unique=True, default="Password")                         # Needed when creating account 
+    f_name = models.CharField(max_length=30, blank=True, null=True)             # Set after account is created 
+    l_name = models.CharField(max_length=30, blank=True, null=True)             # Set after account is created 
+    email = models.CharField(max_length=30, unique=True, null=True)                        # Needed when creating account 
+    is_owner = models.BooleanField(default=False)                                            # True if owner, False if just barber 
+    profile_pic = models.ImageField(upload_to='images/', blank=True, null=True) # Can change file location and file type 
+    phone_num = models.CharField(blank=True, null=True, max_length=12)                         # Barber personal phone number 
+    #shop = models.ForeignKey(Shop, default="Independent",  on_delete=models.CASCADE)                    # Corresponding shop 
+
+    def __str__(self):
+        return self.f_name
