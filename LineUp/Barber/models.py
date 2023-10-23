@@ -9,8 +9,6 @@ class Shop(models.Model):
     location = models.CharField(max_length=60, unique=True)                                    # Shop location, will be set by shop admin account 
     phone_num = models.CharField(blank=True, null=True, max_length=12)                         # Shop specific phone number, different than personal
 
-    # Functions to grad data, todo 
-
 
 class Barber(models.Model):
     # In any of these fields, adjust max_length as needed 
@@ -24,10 +22,10 @@ class Barber(models.Model):
     phone_num = models.CharField(blank=True, null=True, max_length=12)                         # Barber personal phone number 
     #shop = models.ForeignKey(Shop, default="Independent",  on_delete=models.CASCADE)                    # Corresponding shop 
 
-    # Functions to grab data, todo 
     def __str__(self):
         return self.barber_name
 
+        
 class Customer(models.Model):
     # In any of these fields, adjust max_length as needed 
     username = models.CharField(max_length=30, unique=True, default="Username")                     # Needed when creating account 
@@ -38,17 +36,16 @@ class Customer(models.Model):
     profile_pic = models.ImageField(upload_to='images/', blank=True, null=True) # Can change file location and file type 
     barber = models.ForeignKey(Barber, on_delete=models.CASCADE)                                          # Corresponding barber 
     
-    # Functions to grab data, todo 
     def __str__(self):
         return f"{self.username}"
 
+        
 class Event(models.Model):
     date = models.DateField()                                                   # Needed when creating an Event 
     start_time = models.TimeField()                                             # Needed when creating an Event 
     end_time = models.TimeField()                                               # Needed when creating an Event  
     #barber = models.ForeignKey(Barber, blank=False, on_delete=models.CASCADE)                # Barbers 
     customer = models.ForeignKey(Customer, blank=False, on_delete=models.CASCADE)            # Customers
-    # Functions to grab data, todo 
 
 
 class Service(models.Model):
@@ -58,8 +55,6 @@ class Service(models.Model):
     duration = models.IntegerField()                                            # Duration of service, needed when creating Service 
     #barber = models.ForeignKey(Barber, on_delete=models.CASCADE)                # Corresponding barber
 
-    # Functions to grab data, todo 
-
 
 class EventService(models.Model):
     # Events and services have a many to many relationship
@@ -67,8 +62,6 @@ class EventService(models.Model):
     # Service can have multiple events 
     event = models.ForeignKey(Event, on_delete=models.CASCADE)                                            # Events
     service = models.ForeignKey(Service, on_delete=models.CASCADE)                                        # Services 
-
-    # Functions to grab data, todo 
 
 
 class Review(models.Model):
@@ -79,7 +72,6 @@ class Review(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)            # Customer that set review 
     #barber = models.ForeignKey(Barber, blank=False, on_delete=models.CASCADE)                # Barber for review
 
-    # Functions to grab data, todo 
     def __str__(self):
         return self.review_title
 '''
