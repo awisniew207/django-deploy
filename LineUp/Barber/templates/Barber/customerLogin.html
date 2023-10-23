@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+    <style>
+        body {
+            background-color: #4d4a4a; /* Jet Black Background */
+        }
+    </style>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title has-text-white">Customer Login</h1>
+
+            <form method="post" action="{% url 'login' %}" class="form">
+                {% csrf_token %}
+                <div class="field">
+                    <label class="label has-text-white" for="username">Username:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="username" name="username" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label has-text-white" for="password">Password:</label>
+                    <div class="control">
+                        <input class="input" type="password" id="password" name="password" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary" type="submit">Log In</button>
+                    </div>
+                </div>
+
+                <!-- Add this section to display error messages -->
+                {% if error_message %}
+                <div class="notification is-danger">
+                    {{ error_message }}
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </section>
+</body>
+</html>

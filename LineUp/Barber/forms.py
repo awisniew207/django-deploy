@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 from django.db import transaction
-from .models import User
+from .models import User, Customer
 
 class CustomerSignUpForm(UserCreationForm):
     password1 = forms.CharField(
