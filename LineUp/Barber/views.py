@@ -8,6 +8,8 @@ from django.db.models import Q
 from django.views.generic.edit import CreateView
 from .forms import *
 from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
 
 class CustomerSignUpView(CreateView):
     model = User
@@ -20,7 +22,11 @@ class CustomerSignUpView(CreateView):
         login(self.request, user)
         return super().form_valid(form)  # Redirect to the success_url
 
-    # You don't need to define form_invalid explicitly. CreateView handles invalid forms.
+class CustomerLoginView(LoginView):
+    form_class = CustomerLoginForm
+    template_name = 'Barber/customerLogin.html'  # Specify your login template
+    success_url = reverse_lazy('index')  # Set the success URL after login
+
 
 def index_view(request):
     # Your view logic here
