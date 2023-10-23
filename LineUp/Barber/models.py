@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-
+'''
 class Shop(models.Model):
     affiliation_code = models.CharField(unique=True, max_length=20)                            # Each shop has this unique code, needed when creating 
     name = models.CharField(max_length=50)                                                   # Shop name, will be set by shop admin account 
@@ -99,3 +99,10 @@ class BarberUser(AbstractUser):
 
     def __str__(self):
         return self.f_name
+'''
+class User(AbstractUser):
+    is_customer = models.BooleanField(default=False)
+    is_barber = models.BooleanField(default=False)
+
+class Customer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

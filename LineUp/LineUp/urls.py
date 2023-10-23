@@ -21,7 +21,6 @@ from Barber import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('signup/customer', views.customer_signup, name='signup'),
-    path('signup/barber', views.barber_signup, name='signup'),
-    path('index', views.index, name='index'),
+    path('signup/customer', views.CustomerSignUpView.as_view(), name='signup'),
+    path('', views.index_view, name='index'),
 ]
