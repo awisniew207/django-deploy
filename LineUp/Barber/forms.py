@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.db import transaction
 from .models import User, Customer
+from django.contrib.auth.forms import AuthenticationForm
 
 class CustomerSignUpForm(UserCreationForm):
     password1 = forms.CharField(
@@ -44,11 +45,19 @@ class CustomerSignUpForm(UserCreationForm):
         profile.save()
         return user
 
-class CustomerLoginForm(forms.ModelForm):
+class CustomerLoginForm(AuthenticationForm):
+    '''
     class Meta:
         model = User
         fields = ['username', 'password']
         widgets = {
             'password': forms.PasswordInput(),
         }
+    '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # You can customize form widgets or labels if necessary
+        self.fields['username'].widget.attrs['placeholder'] = 'Username'
+        self.fields['password'].widget.attrs['placeholder'] = 'Password'
     
