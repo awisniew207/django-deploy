@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.views.generic.edit import CreateView
 from .forms import *
 from django.contrib.auth import login
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 
 class CustomerSignUpView(CreateView):
@@ -26,6 +26,10 @@ class CustomerLoginView(LoginView):
     form_class = CustomerLoginForm
     template_name = 'Barber/customerLogin.html'  # Specify your login template
     success_url = reverse_lazy('index')  # Set the success URL after login
+
+class CustomerLogoutView(LogoutView):
+    template_name = 'Barber/logout.html'
+    next_page = reverse_lazy('custom_logout')
 
 
 def index_view(request):

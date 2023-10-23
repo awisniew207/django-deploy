@@ -87,6 +87,7 @@ class User(AbstractUser):
     is_customer = models.BooleanField(default=False)
     is_barber = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
+    profile_pic = models.ImageField(upload_to='images/', blank=True, null=True)
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
