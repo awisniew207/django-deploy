@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from Barber import views
 
@@ -24,5 +26,9 @@ urlpatterns = [
     path('signup/customer', views.CustomerSignUpView.as_view(), name='signup'),
     path('login/customer', views.CustomerLoginView.as_view(), name='login'),
     path('logout/', views.CustomerLogoutView.as_view(), name='custom_logout'),
+    path('profile/', views.CustomerProfile.as_view(), name='profile'),
     path('index/', views.index_view, name='index'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,7 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+User = settings.AUTH_USER_MODEL
 '''
 class Shop(models.Model):
     affiliation_code = models.CharField(unique=True, max_length=20)                            # Each shop has this unique code, needed when creating 
@@ -75,11 +75,19 @@ class Review(models.Model):
     def __str__(self):
         return self.review_title
 '''
+#class Profile(models.Model):
+ #   user = models.OneToOneField(User, on_delete=models.CASCADE)
+    #fields = '__all__'
+
+
 class User(AbstractUser):
     is_customer = models.BooleanField(default=False)
     is_barber = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
-    profile_pic = models.ImageField(upload_to='images/', blank=True, null=True)
+    profile_pic = models.ImageField(upload_to='uploads/', default='images/PIC_0102.JPG')
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
+    phone_num = models.CharField(max_length=12, blank=True)
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
