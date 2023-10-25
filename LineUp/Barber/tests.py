@@ -1,3 +1,13 @@
 from django.test import TestCase
 
-# Create your tests here.
+class CustomerSignUpFormTest(TestCase):
+    # Signup Test Cases todo 
+    def test(self):
+        return 
+
+
+class CustomerLoginFormTest(TestCase):
+    # Login Test Cases todo 
+    def test(self):
+        return 
+    
