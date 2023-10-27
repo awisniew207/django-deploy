@@ -21,6 +21,9 @@
     </section>
 
     <div class="container mt-4">
+        <!-- Add a link to the 'view_index' view -->
+        <a href="{% url 'index' %}" class="button is-link">Back to Index</a>
+
         <form id="profile-form" enctype="multipart/form-data" method="post" action="">
             {% csrf_token %}
             <div class="columns">
@@ -87,3 +90,4 @@
     </script>
 </body>
 </html>
+
