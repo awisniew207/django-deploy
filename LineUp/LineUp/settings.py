@@ -130,6 +130,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'Barber.User'
 
-LOGIN_REDIRECT_URL = 'profile'
+LOGIN_REDIRECT_URL = 'profileUpdate'
 
 LOGOUT_REDIRECT_URL= 'custom_logout'
+
+LOGIN_URL = 'login'
+
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend',]

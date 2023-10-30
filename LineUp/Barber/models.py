@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from autoslug import AutoSlugField
+from django.utils.text import slugify
 User = settings.AUTH_USER_MODEL
 '''
 class Shop(models.Model):
@@ -79,7 +81,6 @@ class Review(models.Model):
  #   user = models.OneToOneField(User, on_delete=models.CASCADE)
     #fields = '__all__'
 
-
 class User(AbstractUser):
     is_customer = models.BooleanField(default=False)
     is_barber = models.BooleanField(default=False)
@@ -88,6 +89,13 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     phone_num = models.CharField(max_length=12, blank=True)
+    slug = AutoSlugField(populate_from='generate_slug', null=False, unique=True)
+
+    def generate_slug(self):
+        return slugify(f'{self.username}')
+
+    def get_absolute_url(self):
+        return reverse("profileView", kwargs={"slug": self.slug})
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

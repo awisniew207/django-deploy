@@ -13,4 +13,4 @@ admin.site.register(BarberUser)
 '''
 admin.site.register(User)
 admin.site.register(Customer)
-#admin.site.register(Profile)
+

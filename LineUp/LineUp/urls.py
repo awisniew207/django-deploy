@@ -26,7 +26,8 @@ urlpatterns = [
     path('signup/customer', views.CustomerSignUpView.as_view(), name='signup'),
     path('login/customer', views.CustomerLoginView.as_view(), name='login'),
     path('logout/', views.CustomerLogoutView.as_view(), name='custom_logout'),
-    path('profile/', views.CustomerProfile.as_view(), name='profile'),
+    path('profile/edit/<slug:slug>/', views.CustomerUpdateProfile.as_view(), name='profileUpdate'),
+    path("profile/<slug:slug>", views.CustomerProfileView.as_view(), name="profileView"),
     path('index/', views.index_view, name='index'),
 ]
 

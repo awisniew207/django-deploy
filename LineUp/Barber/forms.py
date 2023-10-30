@@ -22,6 +22,13 @@ class CustomerSignUpForm(UserCreationForm):
         }
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set initial values for the username and email fields
+        if self.instance:
+            self.fields['username'].initial = self.instance.username
+            self.fields['email'].initial = self.instance.email
+
     class Meta(UserCreationForm.Meta):
         model = User
         fields = UserCreationForm.Meta.fields + ('email',)
