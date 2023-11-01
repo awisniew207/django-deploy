@@ -81,7 +81,7 @@ class Review(models.Model):
  #   user = models.OneToOneField(User, on_delete=models.CASCADE)
     #fields = '__all__'
 
-class User(AbstractUser):
+class User(AbstractUser):    
     is_customer = models.BooleanField(default=False)
     is_barber = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
@@ -99,6 +99,14 @@ class User(AbstractUser):
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    is_customer = True
+
+    def __str__(self):
+        return self.user.username
+
+class Barber(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    is_barber = True
 
     def __str__(self):
         return self.user.username
