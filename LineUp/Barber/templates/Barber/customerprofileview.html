@@ -4,28 +4,36 @@
 <html>
 <head>
     <title>Customer Profile</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/customer_profile.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        .cool-font {
+            font-family: 'YourCoolCartoonishFont', sans-serif;
+            /* Define any other font properties you like */
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Customer Profile</h1>
+    <header class="has-background-primary has-text-white">
+        <h1 class="title">Customer Profile</h1>
     </header>
 
     <div class="profile-container">
         <div class="profile-picture">
-            <img src="{{ customer.profile_pic.url }}" alt="Profile Picture">
+            <img src="{{ customer.profile_pic.url }}" alt="Profile Picture" style="width: 400px; height: auto;">
         </div>
 
-        <div class="profile-details">
-            <h2>{{ customer.first_name }} {{ customer.last_name }}</h2>
-            <p>Username: {{ customer.username }}</p>
-            <p>Email: {{ customer.email }}</p>
-            <p>Phone Number: {{ customer.phone_num }}</p>
+        <div class="column">
+            <div class="profile-details">
+                <h2 class="title is-4">{{ customer.first_name }} {{ customer.last_name }}</h2>
+                <p class="cool-font">Username: {{ customer.username }}</p>
+                <p class="cool-font">Email: {{ customer.email }}</p>
+                <p class="cool-font">Phone Number: {{ customer.phone_num }}</p>
+            </div>
         </div>
     </div>
 
-    <footer>
-        <a href="{% url 'profileUpdate' customer.slug %}">Edit Profile</a>
+    <footer class="has-background-white has-text-black">
+        <a href="{% url 'profileUpdate' customer.slug %}" class="button is-primary">Edit Profile</a>
     </footer>
 </body>
 </html>
