@@ -1,53 +1,31 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Profile</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    <style>
-        body {
-            font-family: "Garamond", serif;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/customer_profile.css' %}">
 </head>
 <body>
-    <section class="hero is-danger">
-        <div class="hero-body">
-            <div class="container">
-                <h1 class="title">Customer Profile</h1>
-            </div>
-        </div>
-    </section>
+    <header>
+        <h1>Customer Profile</h1>
+    </header>
 
-    <div class="container mt-4">
-        <div class="columns">
-            <div class="column is-one-third">
-                <div class="profile-picture">
-                    <img src="{{ user.profile_pic.url }}" alt="User's Profile Picture">
-                </div>
-            </div>
-            <div class="column">
-                <div class="field">
-                    <label class="label">First Name</label>
-                    <div class="control">
-                        <p>{{ user.first_name }}</p>
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">Last Name</label>
-                    <div class="control">
-                        <p>{{ user.last_name }}</p>
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">Phone Number</label>
-                    <div class="control">
-                        <p>{{ user.phone_num }}</p>
-                    </div>
-                </div>
-            </div>
+    <div class="profile-container">
+        <div class="profile-picture">
+            <img src="{{ customer.profile_pic.url }}" alt="Profile Picture">
+        </div>
+
+        <div class="profile-details">
+            <h2>{{ customer.first_name }} {{ customer.last_name }}</h2>
+            <p>Username: {{ customer.username }}</p>
+            <p>Email: {{ customer.email }}</p>
+            <p>Phone Number: {{ customer.phone_num }}</p>
         </div>
     </div>
+
+    <footer>
+        <a href="{% url 'profileUpdate' customer.slug %}">Edit Profile</a>
+    </footer>
 </body>
 </html>
