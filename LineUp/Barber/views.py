@@ -12,9 +12,10 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
+from .models import Customer, Barber
 
 class CustomerSignUpView(CreateView):
-    model = User
+    model = Customer
     form_class = CustomerSignUpForm
     template_name = 'Barber/customerSignUp.html'
 
@@ -32,9 +33,9 @@ class CustomerSignUpView(CreateView):
         form.fields['email'].initial = self.request.POST.get('email')
         return super().form_invalid(form)
 
-class CustomerLoginView(LoginView):
-    form_class = CustomerLoginForm
-    template_name = 'Barber/customerLogin.html'
+class LoginView(LoginView):
+    form_class = LoginForm
+    template_name = 'Barber/login.html'
 
     def get_success_url(self):
         # Redirect to the user's profile using their slug
@@ -45,7 +46,7 @@ class CustomerLogoutView(LogoutView):
     next_page = reverse_lazy('custom_logout')
 
 class CustomerUpdateProfile(UpdateView):
-    model = User
+    model = Customer
     form_class = ProfileForm
     template_name = 'Barber/customerProfileEdit.html'
 
@@ -83,6 +84,26 @@ class CustomerProfileView(DetailView):
         return self.render_to_response(context)
 
 #---------------------------------------------------------------------------------------
+class BarberSignUpView(CreateView):
+    model = Barber
+    form_class = BarberSignUpForm
+    template_name = 'Barber/barberSignUp.html'
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)  # Log in the user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('login')
+
+    def form_invalid(self, form):
+        # Set initial values for the username and email fields
+        form.fields['username'].initial = self.request.POST.get('username')
+        form.fields['email'].initial = self.request.POST.get('email')
+
+        return super().form_invalid(form)
+
 
 def index_view(request):
     # Your view logic here
