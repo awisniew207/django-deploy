@@ -43,7 +43,7 @@
                 <!-- Barber Profile Information -->
                 <!-- ... (same as before) ... -->
                 <div class="profile-picture">
-                    <img id="profile-image" src="{% if barber.profile_pic %}{{ barber.profile_pic.url }}{% else %}default-profile.jpg{% endif %}" alt="Profile Picture">
+                    <img src="{{ barber.profile_pic.url }}" alt="Profile Picture" style="width: 400px; height: auto;">
                     <div class="file is-centered is-boxed">
                         <label class="file-label">
                             <input class="file-input" type="file" name="profile_pic" accept="image/*">
@@ -142,6 +142,9 @@
             </div>
         </div>
     </div>
+    <footer class="has-background-white has-text-black">
+        <a href="{% url 'profileUpdate' barber.slug %}" class="button is-primary">Edit Profile</a>
+    </footer>
     <script>
         // Check if the logged-in user matches the owner of this profile
         const loggedInUser = "{% user.username %}"; // Replace with how you access the logged-in user's username
