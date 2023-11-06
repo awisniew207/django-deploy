@@ -9,23 +9,6 @@
         body {
             font-family: "Garamond", serif;
         }
-
-
-        .card-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .card {
-            width: calc(33.33% - 20px);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-content {
-            padding: 20px;
-        }
     </style>
 </head>
 <body>
@@ -38,24 +21,11 @@
     </section>
     
     <div class="container mt-4">
-        <a href="{% url 'index' %}" class="button is-link">Back to Index</a>
         <div class="columns">
             <div class="column is-one-third">
                 <!-- Barber Profile Information -->
-                <!-- ... (same as before) ... -->
                 <div class="profile-picture">
-                    <img src="{{ barber.profile_pic.url }}" alt="Profile Picture" style="width: 400px; height: auto;">
-                    <div class="file is-centered is-boxed">
-                        <label class="file-label">
-                            <input class="file-input" type="file" name="profile_pic" accept="image/*">
-                            <span class="file-cta">
-                                <span class="file-icon">
-                                    <i class="fas fa-upload"></i>
-                                </span>
-                                <span class="file-label">Choose a file…</span>
-                            </span>
-                        </label>
-                    </div>
+                    <img src="{% if barber.profile_pic %}{{ barber.profile_pic.url }}{% else %}default-profile.jpg{% endif %}" alt="Profile Picture">
                 </div>
             </div>
             <div class="column">
@@ -63,35 +33,26 @@
                     <div class="field">
                         <label class="label" for="first-name">First Name</label>
                         <div class="control">
-                            <input class="input" type="text" id="first-name" name="f_name" value="{{ barber.f_name }}" required>
+                            <input class="input" type="text" id="first-name" name="f_name" value="{{ barber.f_name }}" disabled>
                         </div>
                     </div>
                     <div class="field">
                         <label class="label" for="last-name">Last Name</label>
                         <div class="control">
-                            <input class="input" type="text" id="last-name" name="l_name" value="{{ barber.l_name }}" required>
+                            <input class="input" type="text" id="last-name" name="l_name" value="{{ barber.l_name }}" disabled>
                         </div>
                     </div>
                     <div class="field">
                         <label class="label" for="phone-number">Phone Number</label>
                         <div class="control">
-                            <input class="input" type="tel" id="phone-number" name="phone_num" value="{{ barber.phone_num }}" pattern="[0-9]{10}" required>
+                            <input class="input" type="tel" id="phone-number" name="phone_num" value="{{ barber.phone_num }}" pattern="[0-9]{10}" disabled>
                         </div>
-                    </div>
-                    <label class="label" for="works">Examples of Work</label>
-                    <div class="control">
-                        <input class="input" type="file" id="works" name="works[]" accept="image/*" multiple>
                     </div>
                 </div>
                 <div class="field">
                     <label class="label" for="reviews">Customer Reviews</label>
                     <div class="control">
-                        <textarea class="textarea" id="reviews" name="reviews" rows="5" placeholder="Share your reviews and experiences..."></textarea>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="control">
-                        <button class="button is-primary" type="submit">Save</button>
+                        <textarea class="textarea" id="reviews" name="reviews" rows="5" placeholder="Share your reviews and experiences..." disabled>{{ barber.reviews }}</textarea>
                     </div>
                 </div>
             </div>
@@ -130,7 +91,7 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-content">
+                <div class "card-content">
                     <h3 class="title">Customer Review 2</h3>
                     <p>Customer review text here...</p>
                 </div>
@@ -150,3 +111,4 @@
     </footer>
 </body>
 </html>
+
