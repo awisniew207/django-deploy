@@ -95,7 +95,10 @@ class User(AbstractUser):
         return slugify(f'{self.username}')
 
     def get_absolute_url(self):
-        return reverse("profileView", kwargs={"slug": self.slug})
+        if user.is_customer:
+            return reverse("customerProfileView", kwargs={"slug": self.slug})
+        if user.is_barber:
+            return reverse("barberProfileView", kwargs={"slug": self.slug})
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

@@ -38,6 +38,7 @@
     </section>
     
     <div class="container mt-4">
+        <a href="{% url 'index' %}" class="button is-link">Back to Index</a>
         <div class="columns">
             <div class="column is-one-third">
                 <!-- Barber Profile Information -->
@@ -143,23 +144,9 @@
         </div>
     </div>
     <footer class="has-background-white has-text-black">
-        <a href="{% url 'profileUpdate' barber.slug %}" class="button is-primary">Edit Profile</a>
+        {% if is_own_profile %}
+            <a href="{% url 'customerProfileUpdate' barber.slug %}" class="button is-primary">Edit Profile</a>
+        {% endif %}
     </footer>
-    <script>
-        // Check if the logged-in user matches the owner of this profile
-        const loggedInUser = "{% user.username %}"; // Replace with how you access the logged-in user's username
-        const profileOwner = "{% barber.username %}"; // Replace with how you access the barber's username
-    
-        if (loggedInUser !== profileOwner) {
-            // User is not the owner of the profile, disable editing
-            const inputFields = document.querySelectorAll('input, textarea');
-            inputFields.forEach(function (field) {
-                field.setAttribute('readonly', 'true');
-            });
-    
-            const saveButton = document.querySelector('.button.is-primary');
-            saveButton.setAttribute('disabled', 'true');
-        }
-    </script>
 </body>
 </html>

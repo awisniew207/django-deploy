@@ -14,7 +14,7 @@
 </head>
 <body>
     <header class="has-background-primary has-text-white">
-        <h1 class="title">Customer Profile</h1>
+        <h1 class="title">Profile</h1>
     </header>
 
     <div class="profile-container">
@@ -33,7 +33,10 @@
     </div>
 
     <footer class="has-background-white has-text-black">
-        <a href="{% url 'profileUpdate' customer.slug %}" class="button is-primary">Edit Profile</a>
+        {% if is_own_profile %}
+            <a href="{% url 'customerProfileUpdate' customer.slug %}" class="button is-primary">Edit Profile</a>
+        {% endif %}
     </footer>
 </body>
 </html>
+

@@ -27,8 +27,10 @@ urlpatterns = [
     path('signup/barber', views.BarberSignUpView.as_view(), name='barberSignup'),
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.CustomerLogoutView.as_view(), name='custom_logout'),
-    path('profile/edit/<slug:slug>/', views.CustomerUpdateProfile.as_view(), name='profileUpdate'),
-    path("profile/<slug:slug>", views.CustomerProfileView.as_view(), name="profileView"),
+    path('profile/edit/<slug:slug>/', views.CustomerUpdateProfile.as_view(), name='customerProfileUpdate'),
+    path('profile/', views.UserProfileRedirectView.as_view(), name='user_profile_redirect'),
+    path("profile/customer/<slug:slug>", views.CustomerProfileView.as_view(), name="customerProfileView"),
+    path("profile/barber/<slug:slug>", views.BarberProfileView.as_view(), name="barberProfileView"),
     path('index/', views.index_view, name='index'),
 ]
 

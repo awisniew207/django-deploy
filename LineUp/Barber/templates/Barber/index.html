@@ -23,7 +23,7 @@
         {% if user.is_authenticated %}
         <div class="user-info">Welcome, {{ user.username }}</div>
         <!-- Add the "My Profile" button to the header -->
-        <a href="{% url 'profileView' slug=user.slug %}" class="button">My Profile</a>
+        <a href="{% url 'user_profile_redirect'  %}" class="button">My Profile</a>
         <a href="{% url 'custom_logout' %}" class="button">Logout</a>
         {% endif %}
     </header>

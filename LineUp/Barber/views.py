@@ -13,6 +13,9 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
 from .models import Customer, Barber
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
+from django.views.generic.base import View
 
 class CustomerSignUpView(CreateView):
     model = Customer
@@ -61,27 +64,66 @@ class CustomerUpdateProfile(UpdateView):
         # Redirect to the user's profile using their slug
         return reverse_lazy('profileView', kwargs={'slug': self.request.user.slug})
 
-class CustomerProfileView(DetailView):
-    model = User
-    template_name = 'Barber/customerProfileView.html'
-    context_object_name = 'customer'  # Name for the context variable
+class UserProfileRedirectView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        user = request.user
 
-    # Optionally, if you want to customize the slug parameter:
-    slug_url_kwarg = 'slug'  # Default is 'slug'
+        if user.is_customer:
+            # Debugging statement
+            print("Redirecting to customer profile view")
+            # Redirect to the customer profile page
+            return redirect('customerProfileView', slug=user.slug)
+        elif user.is_barber:
+            # Debugging statement
+            print("Redirecting to barber profile view")
+            # Redirect to the barber profile page
+            return redirect('barberProfileView', slug=user.slug)
+        else:
+            # Handle other user types or scenarios as needed
+            return redirect('index')  # Redirect to the home page or an appropriate fallback
+            
+class CustomerProfileView(LoginRequiredMixin, DetailView):
+    model = Customer
+    template_name = 'Barber/customerProfileView.html'
+    context_object_name = 'customer'
+    slug_url_kwarg = 'slug'
+
+    # Ensure that only the user's own profile is accessible
+    def get_object(self, queryset=None):
+        user = super().get_object(queryset)
+        return user
+
+    # Optionally, you can specify a custom query to fetch the user profile
+    def get_queryset(self):
+        return User.objects.all()
+
+    # Set a context variable indicating whether the user is viewing their own profile
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_own_profile'] = self.request.user == self.object
+        return context
+
+class BarberProfileView(LoginRequiredMixin, DetailView):
+    model = Barber
+    template_name = 'Barber/barberProfileView.html'
+    context_object_name = 'barber'  # Name for the context variable
+    slug_url_kwarg = 'slug'  # Optionally, customize the slug parameter as needed
+
+    # Ensure that only the user's own profile is accessible
+    def get_object(self, queryset=None):
+        user = super().get_object(queryset)
+        return user
 
     # Optionally, you can specify a custom query to fetch the user profile
     def get_queryset(self):
         return User.objects.all()  # Customize this query as needed
 
-    # Optionally, if you want to handle cases where a user with a specific slug doesn't exist
-    def get(self, request, *args, **kwargs):
-        try:
-            self.object = self.get_object()
-        except User.DoesNotExist:
-            # Handle the case where the user doesn't exist (e.g., return a 404)
-            return self.handle_no_permission()
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
+    # Set a context variable indicating whether the user is viewing their own profile
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_own_profile'] = self.request.user == self.object
+        return context
+
 
 #---------------------------------------------------------------------------------------
 class BarberSignUpView(CreateView):
@@ -103,7 +145,6 @@ class BarberSignUpView(CreateView):
         form.fields['email'].initial = self.request.POST.get('email')
 
         return super().form_invalid(form)
-
 
 def index_view(request):
     # Your view logic here
