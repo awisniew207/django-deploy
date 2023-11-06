@@ -50,7 +50,7 @@ class CustomerLogoutView(LogoutView):
 
 class CustomerUpdateProfile(UpdateView):
     model = Customer
-    form_class = ProfileForm
+    form_class = CustomerProfileForm
     template_name = 'Barber/customerProfileEdit.html'
 
     def get_object(self, queryset=None):
@@ -62,7 +62,7 @@ class CustomerUpdateProfile(UpdateView):
 
     def get_success_url(self):
         # Redirect to the user's profile using their slug
-        return reverse_lazy('profileView', kwargs={'slug': self.request.user.slug})
+        return reverse_lazy('customerProfileView', kwargs={'slug': self.request.user.slug})
 
 class UserProfileRedirectView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -81,7 +81,7 @@ class UserProfileRedirectView(LoginRequiredMixin, View):
         else:
             # Handle other user types or scenarios as needed
             return redirect('index')  # Redirect to the home page or an appropriate fallback
-            
+
 class CustomerProfileView(LoginRequiredMixin, DetailView):
     model = Customer
     template_name = 'Barber/customerProfileView.html'
@@ -145,6 +145,22 @@ class BarberSignUpView(CreateView):
         form.fields['email'].initial = self.request.POST.get('email')
 
         return super().form_invalid(form)
+
+class BarberUpdateProfile(UpdateView):
+    model = Barber
+    form_class = BarberProfileForm #FIX
+    template_name = 'Barber/barberProfileEdit.html'
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        # Perform additional actions upon form submission if needed
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirect to the user's profile using their slug
+        return reverse_lazy('barberProfileView', kwargs={'slug': self.request.user.slug})
 
 def index_view(request):
     # Your view logic here

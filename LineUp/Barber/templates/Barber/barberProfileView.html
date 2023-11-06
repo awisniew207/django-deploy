@@ -106,7 +106,7 @@
     </div>
     <footer class="has-background-white has-text-black">
         {% if is_own_profile %}
-            <a href="{% url 'customerProfileUpdate' barber.slug %}" class="button is-primary">Edit Profile</a>
+            <a href="{% url 'barberEditProfileView' barber.slug %}" class="button is-primary">Edit Profile</a>
         {% endif %}
     </footer>
 </body>

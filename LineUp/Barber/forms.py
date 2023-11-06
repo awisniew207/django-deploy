@@ -48,7 +48,7 @@ class LoginForm(AuthenticationForm):
         self.fields['username'].widget.attrs['placeholder'] = 'Username'
         self.fields['password'].widget.attrs['placeholder'] = 'Password'
     
-class ProfileForm(forms.ModelForm):
+class CustomerProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30, required=False)
     last_name = forms.CharField(max_length=30, required=False)
     phone_num = forms.CharField(max_length=12, required=False)
@@ -58,7 +58,7 @@ class ProfileForm(forms.ModelForm):
         fields = ['profile_pic', 'first_name', 'last_name', 'phone_num']
 
     def save(self, commit=True):
-        user = super(ProfileForm, self).save(commit=False)
+        user = super(CustomerProfileForm, self).save(commit=False)
         user.first_name = self.cleaned_data.get('first_name')
         user.last_name = self.cleaned_data.get('last_name')
         user.phone_num = self.cleaned_data.get('phone_num')
@@ -106,6 +106,26 @@ class BarberSignUpForm(UserCreationForm):
         profile.last_name = self.cleaned_data['last_name']
 
         profile.save()
+        return user
+
+class BarberProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+    phone_num = forms.CharField(max_length=12, required=False)
+
+    class Meta:
+        model = User
+        fields = ['profile_pic', 'first_name', 'last_name', 'phone_num']
+
+    def save(self, commit=True):
+        user = super(CustomerProfileForm, self).save(commit=False)
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
+        user.phone_num = self.cleaned_data.get('phone_num')
+        user.profile_pic = self.cleaned_data.get('profile_pic')
+
+        if commit:
+            user.save()
         return user
 
 

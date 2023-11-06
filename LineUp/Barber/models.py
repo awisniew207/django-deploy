@@ -90,6 +90,9 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=30, blank=True)
     phone_num = models.CharField(max_length=12, blank=True)
     slug = AutoSlugField(populate_from='generate_slug', null=False, unique=True)
+    works = [models.ImageField(upload_to='uploads/', default='images/PIC_0102.JPG'), 
+            models.ImageField(upload_to='uploads/', default='images/PIC_0102.JPG'), 
+            models.ImageField(upload_to='uploads/', default='images/PIC_0102.JPG')]
 
     def generate_slug(self):
         return slugify(f'{self.username}')
@@ -110,6 +113,9 @@ class Customer(models.Model):
 class Barber(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     is_barber = True
+    #review1... foreignkey?
+    #review2 .. foreignkey?
+    #review3... foreignkey?
 
     def __str__(self):
         return self.user.username
