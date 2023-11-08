@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Barbershop Signup</title>
+    <title>Customer Signup</title>
     <link rel="stylesheet" type="text/css" href="{% static 'Barber/styles.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
     <style>
@@ -15,7 +15,7 @@
 <body>
     <section class="section">
         <div class="container">
-            <h1 class="title has-text-white">Barbershop Signup</h1>
+            <h1 class="title has-text-white">Customer Signup</h1>
             
             <form method="post" action="{% url 'customerSignup' %}" class="form">
                 {% csrf_token %}
