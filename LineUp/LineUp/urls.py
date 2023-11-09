@@ -23,8 +23,8 @@ from Barber import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('signup/customer', views.CustomerSignUpView.as_view(), name='customerSignup'),
-    path('signup/barber', views.BarberSignUpView.as_view(), name='barberSignup'),
+    path('signup/customer/', views.CustomerSignUpView.as_view(), name='customerSignup'),
+    path('signup/barber/', views.BarberSignUpView.as_view(), name='barberSignup'),
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.CustomerLogoutView.as_view(), name='custom_logout'),
     path('profile/customer/edit/<slug:slug>/', views.CustomerUpdateProfile.as_view(), name='customerEditProfileView'),
