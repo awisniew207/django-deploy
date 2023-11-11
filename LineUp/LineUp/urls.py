@@ -15,9 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+import debug_toolbar
 
 from Barber import views
 
@@ -33,6 +34,7 @@ urlpatterns = [
     path("profile/customer/<slug:slug>", views.CustomerProfileView.as_view(), name="customerProfileView"),
     path("profile/barber/<slug:slug>", views.BarberProfileView.as_view(), name="barberProfileView"),
     path('index/', views.index_view, name='index'),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]
 
 if settings.DEBUG:
