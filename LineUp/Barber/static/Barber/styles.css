@@ -3,14 +3,12 @@ body, h1, h2, p, ul {
     padding: 0;
 }
 
-/* Set a background color and text color */
 body {
     background-color: #f2f2f2;
     font-family: Arial, sans-serif;
     color: #333;
 }
 
-/* Style the header */
 header {
     background-color: #333;
     color: #fff;
@@ -18,7 +16,6 @@ header {
     padding: 20px 0;
 }
 
-/* Style the navigation menu */
 nav ul {
     list-style: none;
     text-align: center;
@@ -41,7 +38,6 @@ section {
     padding: 40px;
 }
 
-/* Style the call-to-action button */
 .button {
     display: inline-block;
     padding: 10px 20px;
@@ -52,7 +48,6 @@ section {
     font-weight: bold;
 }
 
-/* Style the services list */
 ul {
     list-style: none;
 }
@@ -61,7 +56,6 @@ ul li {
     margin-bottom: 10px;
 }
 
-/* Style the footer */
 footer {
     text-align: center;
     padding: 10px 0;
@@ -69,7 +63,6 @@ footer {
     color: #fff;
 }
 
-/* Responsive styles for smaller screens */
 @media (max-width: 768px) {
     nav ul {
         text-align: center;
@@ -86,4 +79,11 @@ footer {
         display: block;
         margin: 10px auto;
     }
+}
+
+.user-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-weight: bold;
 }
