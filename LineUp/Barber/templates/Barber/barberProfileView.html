@@ -120,9 +120,12 @@
                 </div>        
                 
                 <!-- Review Button for non-barbers -->
-                {% if not is_own_profile %}
-                    <button class="button is-link" onclick="location.href='{% url 'write_review' barber.user.slug %}'">Write a Review</button>
-                {% endif %}
+            {% if not is_own_profile %}
+                <form action="{% url 'write_review' barber.user.slug %}" method="get">
+                    <button type="submit" class="button is-link">Write a Review</button>
+                </form>
+            {% endif %}
+            
             </div>
         </div>
     </div>

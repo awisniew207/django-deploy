@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.db import transaction
 from .models import User, Customer, Barber, Review
+from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 
 class CustomerSignUpForm(UserCreationForm):
@@ -72,40 +73,24 @@ class CustomerProfileForm(forms.ModelForm):
 
 #-------------------------------------------------------------------------------
 class BarberSignUpForm(UserCreationForm):
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
-
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
     email = forms.EmailField(label="Email")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Set initial values for the username and email fields
-        if self.instance:
-            self.fields['username'].initial = self.instance.username
-            self.fields['email'].initial = self.instance.email
-            self.fields['first_name'].initial = self.instance.first_name
-            self.fields['last_name'].initial = self.instance.last_name
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('email','first_name', 'last_name',)
+        fields = UserCreationForm.Meta.fields + ('email', 'first_name', 'last_name',)
 
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
-        user.is_barber = True
+        user.is_barber = True  # Changed from is_customer to is_barber
         user.save()
 
-        # Check for an existing UserProfile or create a new one
-        try:
-            profile = Barber.objects.get(user=user)
-        except Barber.DoesNotExist:
-            profile = Barber(user=user)
-
-        # Now you can populate the UserProfile fields from the form
-        profile.username = self.cleaned_data['username']
-        profile.email = self.cleaned_data['email']
+        # Check for an existing BarberProfile or create a new one
+        profile, created = Barber.objects.get_or_create(user=user)
         profile.first_name = self.cleaned_data['first_name']
-        profile.last_name = self.cleaned_data['last_name']
+        profile.last_name = self.cleaned_data['last_name']  # Corrected field assignment
+        # Populate other fields for the Barber profile if necessary
 
         profile.save()
         return user

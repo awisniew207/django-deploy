@@ -173,14 +173,14 @@ class BarberSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)  # Log in the user
-        return redirect('login')  # Directly redirect instead of super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy('login')  # Ensure this URL is correctly defined in your urls.py
+        return redirect('login')  # Redirect to login page
 
     def form_invalid(self, form):
-        # Consider logging or printing form errors here for debugging
+        # Here, consider displaying form errors
         return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('login')  # Redirect to login upon successful signup
 
 class BarberUpdateProfile(UpdateView):
     model = User
