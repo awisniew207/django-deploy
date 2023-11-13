@@ -7,26 +7,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LineUp</title>
     <link rel="stylesheet" type="text/css" href="{% static 'Barber/styles.css' %}">
+    <style>
+        body {
+            font-family: "Garamond", serif;
+            background-color: white; /* Set the background color to white */
+            color: #333; /* Set the text color to #333 */
+        }
+
+        .hero.is-danger, .has-background-primary {
+            background-color: #333; /* Change the background color to #333 */
+            color: white; /* Set text color to white for contrast */
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add some shadow for better visibility */
+        }
+
+        .button.is-primary {
+            background-color: #333; /* Set button color */
+            border-color: #333;
+        }
+
+        .button.is-primary:hover {
+            background-color: #555; /* Darker shade for hover effect */
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to LineUp</h1>
-        {% if user.is_authenticated %}
-        <div class="user-info">Welcome, {{ user.username }}</div>
-        <!-- Add the "My Profile" button to the header -->
-        <a href="{% url 'user_profile_redirect'  %}" class="button">My Profile</a>
-        <a href="{% url 'custom_logout' %}" class="button">Logout</a>
-        {% endif %}
-    </header>
-    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#reviews">Reviews</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <h1><center>Welcome to *Shop Name*</center></h1>
+            {% if user.is_authenticated %}
+            <div class="user-info">Welcome, {{ user.username }}
+                <div class="block-display">
+                    <a href="{% url 'user_profile_redirect'  %}" class="button">Profile</a>
+                    <a href="{% url 'custom_logout' %}" class="button">Logout</a>
+                </div>            
+            {% endif %}
+            </div>
+        </div>
+    </section>
     
     <section id="home">
         <h2>Quality Haircuts & Designs</h2>
