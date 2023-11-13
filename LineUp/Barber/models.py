@@ -136,3 +136,15 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.customer.username} for {self.barber.user.username}"
+    
+
+class Service(models.Model):
+    barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='barber_services')
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    duration = models.DurationField()
+
+    def __str__(self):
+        return f"{self.title} by {self.barber.user.username}"
+    
