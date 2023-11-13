@@ -10,11 +10,31 @@
     <style>
         body {
             font-family: "Garamond", serif;
+            background-color: white; /* Set the background color to white */
+            color: #333; /* Set the text color to #333 */
+        }
+
+        .hero.is-danger, .has-background-primary {
+            background-color: #333; /* Change the background color to #333 */
+            color: white; /* Set text color to white for contrast */
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add some shadow for better visibility */
+        }
+
+        .button.is-primary {
+            background-color: #333; /* Set button color */
+            border-color: #333;
+        }
+
+        .button.is-primary:hover {
+            background-color: #555; /* Darker shade for hover effect */
         }
     </style>
 </head>
 <body>
-    <section class="hero is-danger has-background-primary">
+    <section class="hero is-danger">
         <div class="hero-body">
             <div class="container">
                 <h1 class="title">Profile</h1>
