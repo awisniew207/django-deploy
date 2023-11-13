@@ -5,9 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Write Review</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        .navbar {
+            background-color: black;
+        }
+        .navbar-item, .navbar-burger {
+            color: white;
+        }
+        .review-form {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <section class="section">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <span class="navbar-item">Review</span>
+                <span class="navbar-burger burger" data-target="navbarMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </div>
+            <div id="navbarMenu" class="navbar-menu">
+                <div class="navbar-end">
+                    <a class="navbar-item" href="{% url 'barberProfileView' slug=barber.user.slug %}">Back to Profile</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Review Form Section -->
+    <section class="section review-form">
         <div class="container">
             <h1 class="title">Write a Review for {{ barber.user.username }}</h1>
             
