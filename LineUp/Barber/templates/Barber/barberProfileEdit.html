@@ -10,7 +10,6 @@
             font-family: "Garamond", serif;
         }
 
-
         .card-container {
             display: flex;
             flex-wrap: wrap;
@@ -26,13 +25,36 @@
         .card-content {
             padding: 20px;
         }
+
+        /* Custom Styles for Color Changes */
+        .hero.is-danger, .has-background-primary {
+            background-color: #333; /* Change hero background color */
+            color: white; /* Ensure text is visible on dark background */
+        }
+
+        .button.is-primary {
+            background-color: #333; /* Set button color */
+            border-color: #333;
+        }
+
+        .button.is-primary:hover {
+            background-color: #555; /* Darker shade for hover effect */
+        }
+
+        footer.has-background-white {
+            background-color: #333; /* Footer background color */
+            color: white; /* Footer text color */
+        }
     </style>
 </head>
 <body>
-    <section class="hero is-danger has-background-primary">
+    <section class="hero is-danger">
         <div class="hero-body">
             <div class="container">
                 <h1 class="title">Profile</h1>
+            </div>
+            <div class="column has-text-right">
+                <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
             </div>
         </div>
     </section>
