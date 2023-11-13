@@ -56,20 +56,16 @@
                 <div class="profile-picture">
                     <img src="{% if barber.user.profile_pic %}{{ barber.user.profile_pic.url }}{% else %}default-profile.jpg{% endif %}" alt="Profile Picture">
                 </div>
+                <!-- Full Name as Subheading -->
+                <h2 class="title is-4">{{ barber.user.get_full_name }}</h2>
+                <!-- Display Phone Number -->
+                <p><strong>Phone Number: </strong>{{ barber.user.phone_num }}</p>
             </div>
             <div class="column">
-                <!-- Barber Personal Information -->
-                <div class="field">
-                    <label class="label">First Name</label>
-                    <p>{{ barber.user.first_name }}</p>
-                </div>
-                <div class="field">
-                    <label class="label">Last Name</label>
-                    <p>{{ barber.user.last_name }}</p>
-                </div>
-                <div class="field">
-                    <label class="label">Phone Number</label>
-                    <p>{{ barber.user.phone_num }}</p>
+                <!-- Services Section -->
+                <div class="services-section">
+                    <h2 class="title is-4">Services</h2>
+                    <!-- Include Services Here -->
                 </div>
 
                 <div class="reviews-section">
@@ -124,15 +120,6 @@
                     <button class="button is-link" onclick="location.href='{% url 'write_review' barber.user.slug %}'">Write a Review</button>
                 {% endif %}
             </div>
-        </div>
-    </div>
-
-    <!-- Flexbox for Work Examples -->
-    <div class="container mt-4">
-        <h2 class="subtitle">Work Examples</h2>
-        <div class="card-container">
-            <!-- Work Example Cards -->
-            <!-- ... (Existing work examples code) ... -->
         </div>
     </div>
 
