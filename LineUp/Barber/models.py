@@ -120,8 +120,8 @@ class Barber(models.Model):
         return self.user.username
 
 class Review(models.Model):
-    barber = models.ForeignKey('Barber', on_delete=models.CASCADE, related_name='reviews')
-    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='customer_reviews')
+    barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='barber_reviews')
     content = models.TextField()
     RATING_CHOICES = [
     (0, '0'),

@@ -6,6 +6,7 @@
     <title>Profile</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <style>
+        /* Your existing styles */
         body {
             font-family: 'Garamond', serif;
             background-color: white; /* Set the main background color to white */
@@ -31,8 +32,6 @@
             background-color: #555; /* Lighter shade for hover effect */
             color: white;
         }
-
-        /* Additional style adjustments as needed */
     </style>
 </head>
 <body>
@@ -44,23 +43,60 @@
     </header>
 
     <div class="profile-container">
-        <div class="profile-picture">
-            <img src="{{ customer.profile_pic.url }}" alt="Profile Picture" style="width: 400px; height: auto;">
-        </div>
+        <!-- Display profile picture -->
+        {% if customer.user.profile_pic %}
+            <div class="profile-picture">
+                <img src="{{ customer.user.profile_pic.url }}" alt="Profile Picture" style="width: 400px; height: auto;">
+            </div>
+        {% endif %}
 
         <div class="column">
             <div class="profile-details">
-                <h2 class="title is-4">{{ customer.first_name }} {{ customer.last_name }}</h2>
-                <p class="cool-font">Username: {{ customer.username }}</p>
-                <p class="cool-font">Email: {{ customer.email }}</p>
-                <p class="cool-font">Phone Number: {{ customer.phone_num }}</p>
+                <!-- Display customer details -->
+                <h2 class="title is-4">{{ customer.user.first_name }} {{ customer.user.last_name }}</h2>
+                <p class="cool-font">Username: {{ customer.user.username }}</p>
+                <p class="cool-font">Email: {{ customer.user.email }}</p>
+                <p class="cool-font">Phone Number: {{ customer.user.phone_num }}</p>
             </div>
         </div>
     </div>
 
+    <!-- Reviews Section -->
+<!-- Reviews Section -->
+<div class="reviews-section">
+    <h2 class="title is-4">My Reviews</h2>
+    {% for review in reviews %}
+        <div class="box">
+            <article class="media">
+                <div class="media-left">
+                    <figure class="image is-64x64">
+                        <img src="{{ review.barber.user.profile_pic.url }}" alt="{{ review.barber.user.username }}'s Profile Picture">
+                    </figure>
+                </div>
+                <div class="media-content">
+                    <div class="content">
+                        <p>
+                            <strong>{{ review.barber.user.first_name }} {{ review.barber.user.last_name }}</strong>
+                            <br>
+                            Rating: {{ review.rating }}
+                            <br>
+                            {{ review.content }}
+                            <br>
+                            <small>Written on: {{ review.created_at|date:"Y-m-d" }}</small>
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </div>
+    {% empty %}
+        <p>You haven't written any reviews yet.</p>
+    {% endfor %}
+</div>
+
+    <!-- Edit Profile Link -->
     <footer class="has-background-white has-text-black">
         {% if is_own_profile %}
-            <a href="{% url 'customerEditProfileView' customer.slug %}" class="button is-primary">Edit Profile</a>
+            <a href="{% url 'customerEditProfileView' slug=customer.user.slug %}" class="button is-primary">Edit Profile</a>
         {% endif %}
     </footer>
 </body>
