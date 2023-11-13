@@ -85,6 +85,7 @@ class Review(models.Model):
 class User(AbstractUser):    
     is_customer = models.BooleanField(default=False)
     is_barber = models.BooleanField(default=False)
+    is_owner = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
     profile_pic = models.ImageField(upload_to='uploads/', default='images/PIC_0102.JPG')
     first_name = models.CharField(max_length=30, blank=True)
@@ -115,6 +116,12 @@ class Barber(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     is_barber = True
 
+    def __str__(self):
+        return self.user.username
+
+class Owner(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    is_owner = True
 
     def __str__(self):
         return self.user.username
@@ -136,7 +143,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.customer.username} for {self.barber.user.username}"
-    
 
 class Service(models.Model):
     barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='barber_services')
@@ -147,4 +153,21 @@ class Service(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.barber.user.username}"
+
+class Shop(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.OneToOneField(Owner, on_delete=models.SET_NULL, null=True, related_name='owned_shop')
+    barbers = models.ManyToManyField(Barber, related_name='shops')
+    address = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Shop, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
     
