@@ -37,7 +37,7 @@
 
     <footer class="has-background-white has-text-black">
         {% if is_own_profile %}
-            <a href="{% url 'customerProfileUpdate' customer.slug %}" class="button is-primary">Edit Profile</a>
+            <a href="{% url 'customerEditProfileView' customer.slug %}" class="button is-primary">Edit Profile</a>
         {% endif %}
     </footer>
 </body>

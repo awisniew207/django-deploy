@@ -118,11 +118,14 @@ class BarberProfileForm(forms.ModelForm):
         fields = ['profile_pic', 'first_name', 'last_name', 'phone_num']
 
     def save(self, commit=True):
-        user = super(BarberProfileForm, self).save(commit=False)
+        user = super().save(commit=False)
         user.first_name = self.cleaned_data.get('first_name')
         user.last_name = self.cleaned_data.get('last_name')
         user.phone_num = self.cleaned_data.get('phone_num')
-        user.profile_pic = self.cleaned_data.get('profile_pic')
+
+        # Only update the profile_pic if a new picture is provided
+        if 'profile_pic' in self.changed_data:
+            user.profile_pic = self.cleaned_data.get('profile_pic')
 
         if commit:
             user.save()

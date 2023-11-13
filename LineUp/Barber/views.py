@@ -123,7 +123,7 @@ class BarberProfileView(LoginRequiredMixin, DetailView):
         print("Request user:", self.request.user)
         print("Profile object:", self.object)
         print("Profile object's user:", getattr(self.object, 'user', None))
-        
+
         barber = self.get_object()
         context['reviews'] = Review.objects.filter(barber=barber)
 
@@ -154,20 +154,22 @@ class BarberSignUpView(CreateView):
         return super().form_invalid(form)
 
 class BarberUpdateProfile(UpdateView):
-    model = Barber
-    form_class = BarberProfileForm #FIX
+    model = User
+    form_class = BarberProfileForm
     template_name = 'Barber/barberProfileEdit.html'
 
     def get_object(self, queryset=None):
-        return self.request.user
+        # Get the User instance for the logged-in barber
+        return get_object_or_404(User, username=self.request.user.username)
 
     def form_valid(self, form):
-        # Perform additional actions upon form submission if needed
+        # Save the user instance
+        form.save()
         return super().form_valid(form)
 
     def get_success_url(self):
-        # Redirect to the user's profile using their slug
-        return reverse_lazy('barberProfileView', kwargs={'slug': self.request.user.slug})
+        # Redirect to the barber's profile page after successful update
+        return reverse_lazy('barberProfileView', kwargs={'slug': self.object.slug})
 
 def index_view(request):
     # Your view logic here
