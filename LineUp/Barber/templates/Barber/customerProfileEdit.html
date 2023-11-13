@@ -9,6 +9,36 @@
         body {
             font-family: "Garamond", serif;
         }
+
+        .hero.is-danger, .has-background-primary {
+            background-color: #333; /* Change the hero section background color */
+            color: white; /* Set text color to white for contrast */
+        }
+
+        .button.is-primary {
+            background-color: #333; /* Set button color */
+            color: white; /* Set button text color */
+            border-color: white;
+        }
+
+        .button.is-primary:hover {
+            background-color: #eee; /* Lighter shade for hover effect */
+            color: #333;
+        }
+
+        input, textarea {
+            background-color: #eee; /* Light background for inputs */
+            color: #333; /* Text color for inputs */
+        }
+
+        label {
+            color: white; /* Set label text color */
+        }
+
+        .file-cta {
+            background-color: white; /* Set file input background */
+            color: #333; /* Set file input text color */
+        }
     </style>
 </head>
 <body>
@@ -24,8 +54,7 @@
     </section>
 
     <div class="container mt-4">
-        <!-- Add a link to the 'view_index' view -->
-        <a href="{% url 'index' %}" class="button is-link">Back to Index</a>
+        
 
         <form id="profile-form" enctype="multipart/form-data" method="post" action="">
             {% csrf_token %}
