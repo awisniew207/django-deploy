@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from autoslug import AutoSlugField
 from django.utils.text import slugify
+from django.core.validators import MaxValueValidator, MinValueValidator
 User = settings.AUTH_USER_MODEL
 '''
 class Shop(models.Model):
@@ -113,9 +114,7 @@ class Customer(models.Model):
 class Barber(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     is_barber = True
-    #review1... foreignkey?
-    #review2 .. foreignkey?
-    #review3... foreignkey?
+
 
     def __str__(self):
         return self.user.username
@@ -124,7 +123,15 @@ class Review(models.Model):
     barber = models.ForeignKey('Barber', on_delete=models.CASCADE, related_name='reviews')
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
-    rating = models.IntegerField(default=5)
+    RATING_CHOICES = [
+    (0, '0'),
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4'),
+    (5, '5'),
+    ]
+    rating = models.IntegerField(choices=RATING_CHOICES, default=5)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
