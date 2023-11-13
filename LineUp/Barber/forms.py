@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.db import transaction
-from .models import User, Customer, Barber, Review, Shop, Owner
+from .models import User, Customer, Barber, Review, Shop, Owner, Service
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -185,6 +185,10 @@ class OwnerProfileForm(forms.ModelForm):
             # Assuming the Owner model has a relation to a Shop
             self.fields['shop'].initial = self.instance.owned_shop.id if self.instance.owned_shop else None
 
-
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        fields = ['title', 'description', 'price', 'duration']
+        # Add widgets or customize fields as required
 
 
