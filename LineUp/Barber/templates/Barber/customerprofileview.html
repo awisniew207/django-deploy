@@ -6,15 +6,38 @@
     <title>Profile</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <style>
+        body {
+            font-family: 'Garamond', serif;
+            background-color: white; /* Set the main background color to white */
+            color: #333; /* Set the main text color to #333 */
+        }
+
         .cool-font {
             font-family: 'YourCoolCartoonishFont', sans-serif;
             /* Define any other font properties you like */
         }
+
+        header, .button.is-primary {
+            background-color: #333; /* Change background color to #333 */
+            color: white; /* Change text color to white for contrast */
+        }
+
+        footer.has-background-white, .button.is-light {
+            background-color: white; /* Keep footer background white */
+            color: #333; /* Footer text color */
+        }
+
+        .button.is-primary:hover, .button.is-light:hover {
+            background-color: #555; /* Lighter shade for hover effect */
+            color: white;
+        }
+
+        /* Additional style adjustments as needed */
     </style>
 </head>
 <body>
-    <header class="has-background-primary has-text-white">
-        <h1 class="title">Profile</h1>
+    <header class="has-text-white">
+        <h1 class="has-text-white title">Profile</h1>
         <div class="column has-text-right">
             <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
         </div>
