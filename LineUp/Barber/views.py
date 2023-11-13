@@ -171,16 +171,24 @@ class BarberSignUpView(CreateView):
     template_name = 'Barber/barberSignUp.html'
 
     def form_valid(self, form):
+        # Save the new user first
         user = form.save()
-        login(self.request, user)  # Log in the user
-        return redirect('login')  # Redirect to login page
+        # Then log the user in
+        login(self.request, user)
 
-    def form_invalid(self, form):
-        # Here, consider displaying form errors
-        return super().form_invalid(form)
+        # After successful registration and login, redirect to a specific page
+        # For example, redirect to the barber's profile page
+        return redirect('barberProfileView', slug=user.slug)
 
     def get_success_url(self):
-        return reverse_lazy('login')  # Redirect to login upon successful signup
+        # This method might be redundant if you're redirecting within form_valid
+        # You can keep it if you have a specific use case for it
+        return reverse_lazy('login')
+
+    def form_invalid(self, form):
+        # Logging form errors can be helpful for debugging
+        print("Form is invalid:", form.errors)
+        return super().form_invalid(form)
 
 class BarberUpdateProfile(UpdateView):
     model = User

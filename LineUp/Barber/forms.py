@@ -73,26 +73,32 @@ class CustomerProfileForm(forms.ModelForm):
 
 #-------------------------------------------------------------------------------
 class BarberSignUpForm(UserCreationForm):
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
     email = forms.EmailField(label="Email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initialize username and email if instance is available
+        if self.instance:
+            self.fields['username'].initial = self.instance.username
+            self.fields['email'].initial = self.instance.email
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('email', 'first_name', 'last_name',)
+        fields = UserCreationForm.Meta.fields + ('email',)
 
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
-        user.is_barber = True  # Changed from is_customer to is_barber
+        user.is_barber = True
         user.save()
 
-        # Check for an existing BarberProfile or create a new one
+        # Create or get a Barber profile
         profile, created = Barber.objects.get_or_create(user=user)
-        profile.first_name = self.cleaned_data['first_name']
-        profile.last_name = self.cleaned_data['last_name']  # Corrected field assignment
-        # Populate other fields for the Barber profile if necessary
-
+        profile.first_name = self.cleaned_data.get('first_name', '')
+        profile.last_name = self.cleaned_data.get('last_name', '')
         profile.save()
+
         return user
 
 class BarberProfileForm(forms.ModelForm):

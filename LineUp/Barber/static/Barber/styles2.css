@@ -42,10 +42,6 @@ body {
     margin-bottom: 5px;
 }
 
-.styled-checkbox {
-    display: none;
-}
-
 .checkmark {
     display: inline-block;
     width: 20px;

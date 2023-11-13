@@ -3,9 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Barber Signup</title>
+    <title>Barber Sign Up</title>
     <link rel="stylesheet" type="text/css" href="{% static 'Barber/styles2.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
 </head>
@@ -23,101 +21,73 @@
             <form method="post" action="{% url 'barberSignup' %}" class="form">
                 {% csrf_token %}
 
-                {% if form.non_field_errors %}
-                    <div class="notification is-danger">
-                        {% for error in form.non_field_errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                <!-- Username Field -->
                 <div class="field">
-                    <label class="label has-text-white" for="{{ form.username.id_for_label }}">Username</label>
+                    <label class="label has-text-white" for="username">Username</label>
                     <div class="control">
-                        <input class="input" type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" value="{{ form.username.value }}" required>
+                        <input class="input" type="text" id="username" name="username" required>
                         {% if form.username.errors %}
-                            <p class="help is-danger">{{ form.username.errors }}</p>
+                            <p class="help is-danger">{{ form.username.errors.as_text }}</p>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- First Name Field -->
                 <div class="field">
-                    <label class="label has-text-white" for="{{ form.first_name.id_for_label }}">First Name</label>
+                    <label class="label has-text-white" for="first_name">First Name</label>
                     <div class="control">
-                        <input class="input" type="text" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" value="{{ form.first_name.value }}" required>
+                        <input class="input" type="text" id="first_name" name="first_name" required>
                         {% if form.first_name.errors %}
-                            <p class="help is-danger">{{ form.first_name.errors }}</p>
+                            <p class="help is-danger">{{ form.first_name.errors.as_text }}</p>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Last Name Field -->
                 <div class="field">
-                    <label class="label has-text-white" for="{{ form.last_name.id_for_label }}">Last Name</label>
+                    <label class="label has-text-white" for="last_name">Last Name</label>
                     <div class="control">
-                        <input class="input" type="text" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" value="{{ form.last_name.value }}" required>
+                        <input class="input" type="text" id="last_name" name="last_name" required>
                         {% if form.last_name.errors %}
-                            <p class="help is-danger">{{ form.last_name.errors }}</p>
+                            <p class="help is-danger">{{ form.last_name.errors.as_text }}</p>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Email Field -->
                 <div class="field">
-                    <label class="label has-text-white" for="{{ form.email.id_for_label }}">Email</label>
+                    <label class="label has-text-white" for="email">Email</label>
                     <div class="control">
-                        <input class="input" type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" value="{{ form.email.value }}" required>
+                        <input class="input" type="email" id="email" name="email" required>
                         {% if form.email.errors %}
-                            <p class="help is-danger">{{ form.email.errors }}</p>
+                            <p class="help is-danger">{{ form.email.errors.as_text }}</p>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Password Field -->
                 <div class="field">
-                    <label class="label has-text-white" for="{{ form.password1.id_for_label }}">Password</label>
+                    <label class="label has-text-white" for="password1">Password</label>
                     <div class="control">
-                        <input class="input" type="password" id="{{ form.password1.id_for_label }}" name="{{ form.password1.name }}" required>
+                        <input class="input" type="password" id="password1" name="password1" required>
                         {% if form.password1.errors %}
-                            <p class="help is-danger">{{ form.password1.errors }}</p>
+                            <p class="help is-danger">{{ form.password1.errors.as_text }}</p>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Confirm Password Field -->
                 <div class="field">
-                    <label class="label has-text-white" for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                    <label class="label has-text-white" for="password2">Confirm Password</label>
                     <div class="control">
-                        <input class="input" type="password" id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}" required>
+                        <input class="input" type="password" id="password2" name="password2" required>
                         {% if form.password2.errors %}
-                            <p class="help is-danger">{{ form.password2.errors }}</p>
+                            <p class="help is-danger">{{ form.password2.errors.as_text }}</p>
                         {% endif %}
                     </div>
                 </div>
-                
+
                 <div class="field">
                     <div class="control">
                         <button class="button is-primary" type="submit">Sign Up</button>
                     </div>
                 </div>
-
-                <!-- Form Errors -->
-                {% if form.errors %}
-                <div class="notification is-danger">
-                    <ul>
-                        {% for field, errors in form.errors.items %}
-                            <li>{{ field }}: {{ errors }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
-                
-                <!-- Submit button... -->
             </form>
         </div>
     </section>
 </body>
 </html>
-
