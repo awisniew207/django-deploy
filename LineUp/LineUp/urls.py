@@ -33,6 +33,7 @@ urlpatterns = [
     path('profile/', views.UserProfileRedirectView.as_view(), name='user_profile_redirect'),
     path("profile/customer/<slug:slug>", views.CustomerProfileView.as_view(), name="customerProfileView"),
     path("profile/barber/<slug:slug>", views.BarberProfileView.as_view(), name="barberProfileView"),
+    path('review/write/<slug:slug>/', views.WriteReviewView.as_view(), name='write_review'),
     path('index/', views.index_view, name='index'),
     path('__debug__/', include(debug_toolbar.urls)),
 ]

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.db import transaction
-from .models import User, Customer, Barber
+from .models import User, Customer, Barber, Review
 from django.contrib.auth.forms import AuthenticationForm
 
 class CustomerSignUpForm(UserCreationForm):
@@ -118,7 +118,7 @@ class BarberProfileForm(forms.ModelForm):
         fields = ['profile_pic', 'first_name', 'last_name', 'phone_num']
 
     def save(self, commit=True):
-        user = super(CustomerProfileForm, self).save(commit=False)
+        user = super(BarberProfileForm, self).save(commit=False)
         user.first_name = self.cleaned_data.get('first_name')
         user.last_name = self.cleaned_data.get('last_name')
         user.phone_num = self.cleaned_data.get('phone_num')
@@ -128,6 +128,11 @@ class BarberProfileForm(forms.ModelForm):
             user.save()
         return user
 
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['content', 'rating']
+        # Add other fields and widgets as needed
 
 
 

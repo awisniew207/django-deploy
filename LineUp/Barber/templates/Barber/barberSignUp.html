@@ -23,28 +23,32 @@
                 <div class="field">
                     <label class="label has-text-white" for="{{ form.username.id_for_label }}">Username</label>
                     <div class="control">
-                        <input class="input" type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" required>
+                        <input class="input" type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" value="{{ form.username.value }}" required>
+                        {{ form.username.errors }}
                     </div>
                 </div>
 
                 <div class="field">
                     <label class="label has-text-white" for="{{ form.first_name.id_for_label }}">First Name</label>
                     <div class="control">
-                        <input class="input" type="text" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" required>
+                        <input class="input" type="text" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" value="{{ form.first_name.value }}" required>
+                        {{ form.first_name.errors }}
                     </div>
                 </div>
 
                 <div class="field">
                     <label class="label has-text-white" for="{{ form.last_name.id_for_label }}">Last Name</label>
                     <div class="control">
-                        <input class="input" type="text" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" required>
+                        <input class="input" type="text" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" value="{{ form.last_name.value }}" required>
+                        {{ form.last_name.errors }}
                     </div>
                 </div>
 
                 <div class="field">
                     <label class="label has-text-white" for="{{ form.email.id_for_label }}">Email</label>
                     <div class="control">
-                        <input class="input" type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" required>
+                        <input class="input" type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" value="{{ form.email.value }}" required>
+                        {{ form.email.errors }}
                     </div>
                 </div>
 
@@ -52,6 +56,7 @@
                     <label class="label has-text-white" for="{{ form.password1.id_for_label }}">Password</label>
                     <div class="control">
                         <input class="input" type="password" id="{{ form.password1.id_for_label }}" name="{{ form.password1.name }}" required>
+                        {{ form.password1.errors }}
                     </div>
                 </div>
 
@@ -59,37 +64,18 @@
                     <label class="label has-text-white" for="{{ form.password2.id_for_label }}">Confirm Password</label>
                     <div class="control">
                         <input class="input" type="password" id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}" required>
+                        {{ form.password2.errors }}
                     </div>
                 </div>
                 
-                <!-- Checkbox added to the form -->
-                <div class="field">
-                    <div class="control">
-                        <label class="checkbox">
-                            <input class="styled-checkbox" type="checkbox" name="{{ form.is_owner.name }}">
-                            <span class="checkmark"></span>
-                            <span class="has-text-white">Owner</span>
-                        </label>
-                    </div>
-                </div>
-
+                <!-- Removed Checkbox for Owner as it was not part of the original requirements -->
+                
                 <div class="field">
                     <div class="control">
                         <button class="button is-primary" type="submit">Sign Up</button>
                     </div>
                 </div>
             </form>
-
-            <!-- Add this section to display form errors -->
-            {% if error_message %}
-            <div class="notification is-danger">
-                <ul>
-                    {% for field, errors in form.errors.items %}
-                        <li>{{ field }}: {{ errors }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
         </div>
     </section>
 </body>

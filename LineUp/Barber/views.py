@@ -15,7 +15,9 @@ from django.contrib.auth.decorators import login_required
 from .models import Customer, Barber
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
-from django.views.generic.base import View
+from django.views import View
+from django.shortcuts import get_object_or_404
+
 
 class CustomerSignUpView(CreateView):
     model = Customer
@@ -107,21 +109,29 @@ class BarberProfileView(LoginRequiredMixin, DetailView):
     model = Barber
     template_name = 'Barber/barberProfileView.html'
     context_object_name = 'barber'  # Name for the context variable
-    slug_url_kwarg = 'slug'  # Optionally, customize the slug parameter as needed
+    slug_url_kwarg = 'slug'  # Customize the slug parameter as needed
 
-    # Ensure that only the user's own profile is accessible
     def get_object(self, queryset=None):
-        user = super().get_object(queryset)
-        return user
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        barber = Barber.objects.filter(user__slug=slug).first()
+        return barber
 
-    # Optionally, you can specify a custom query to fetch the user profile
-    def get_queryset(self):
-        return User.objects.all()  # Customize this query as needed
-
-    # Set a context variable indicating whether the user is viewing their own profile
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_own_profile'] = self.request.user == self.object
+
+        # Debugging
+        print("Request user:", self.request.user)
+        print("Profile object:", self.object)
+        print("Profile object's user:", getattr(self.object, 'user', None))
+        
+        barber = self.get_object()
+        context['reviews'] = Review.objects.filter(barber=barber)
+
+        if isinstance(self.object, Barber) and self.request.user == self.object.user:
+            context['is_own_profile'] = True
+        else:
+            context['is_own_profile'] = False
+
         return context
 
 
@@ -134,16 +144,13 @@ class BarberSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)  # Log in the user
-        return super().form_valid(form)
+        return redirect('login')  # Directly redirect instead of super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('login')
+        return reverse_lazy('login')  # Ensure this URL is correctly defined in your urls.py
 
     def form_invalid(self, form):
-        # Set initial values for the username and email fields
-        form.fields['username'].initial = self.request.POST.get('username')
-        form.fields['email'].initial = self.request.POST.get('email')
-
+        # Consider logging or printing form errors here for debugging
         return super().form_invalid(form)
 
 class BarberUpdateProfile(UpdateView):
@@ -165,6 +172,23 @@ class BarberUpdateProfile(UpdateView):
 def index_view(request):
     # Your view logic here
     return render(request, 'Barber/index.html')
+
+class WriteReviewView(View):
+    def get(self, request, slug):
+        barber = get_object_or_404(Barber, user__slug=slug)
+        form = ReviewForm()  # Assuming you have a ReviewForm
+        return render(request, 'Barber/write_review.html', {'form': form, 'barber': barber})
+
+    def post(self, request, slug):
+        barber = get_object_or_404(Barber, user__slug=slug)
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.barber = barber
+            review.customer = request.user  # Assuming the reviewer is the logged-in user
+            review.save()
+            return redirect('barberProfileView', slug=slug)  # Redirect to the barber's profile
+        return render(request, 'Barber/write_review.html', {'form': form, 'barber': barber})
 
 
 

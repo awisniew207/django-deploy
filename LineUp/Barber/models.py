@@ -119,3 +119,13 @@ class Barber(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class Review(models.Model):
+    barber = models.ForeignKey('Barber', on_delete=models.CASCADE, related_name='reviews')
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    rating = models.IntegerField(default=5)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review by {self.customer.username} for {self.barber.user.username}"
