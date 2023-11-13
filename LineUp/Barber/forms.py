@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.db import transaction
-from .models import User, Customer, Barber, Review
+from .models import User, Customer, Barber, Review, Shop, Owner
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -130,6 +130,60 @@ class ReviewForm(forms.ModelForm):
         fields = ['content', 'rating']
         # Add other fields and widgets as needed
 
+#----------------------------------------------------------------------------------------
+
+class OwnerSignUpForm(UserCreationForm):
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
+    email = forms.EmailField(label="Email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initialize username and email if instance is available
+        if self.instance:
+            self.fields['username'].initial = self.instance.username
+            self.fields['email'].initial = self.instance.email
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = UserCreationForm.Meta.fields + ('email',)
+
+    @transaction.atomic
+    def save(self):
+        user = super().save(commit=False)
+        user.is_owner = True
+        user.save()
+
+        # Create or get a Barber profile
+        profile, created = Owner.objects.get_or_create(user=user)
+        profile.first_name = self.cleaned_data.get('first_name', '')
+        profile.last_name = self.cleaned_data.get('last_name', '')
+        profile.save()
+
+        return user
+
+class ShopRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = Shop
+        fields = ['name', 'address', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super(ShopRegistrationForm, self).__init__(*args, **kwargs)
+        # Customize your form initialization or add extra fields here if needed
+
+class OwnerProfileForm(forms.ModelForm):
+    shop_choices = [(shop.id, shop.name) for shop in Shop.objects.all()]
+    shop = forms.ChoiceField(choices=shop_choices, required=False)
+
+    class Meta:
+        model = Owner
+        fields = ['user', 'shop']
+
+    def __init__(self, *args, **kwargs):
+        super(OwnerProfileForm, self).__init__(*args, **kwargs)
+        # Ensure that instance is an Owner instance and not a User instance
+        if self.instance and hasattr(self.instance, 'owned_shop'):
+            # Assuming the Owner model has a relation to a Shop
+            self.fields['shop'].initial = self.instance.owned_shop.id if self.instance.owned_shop else None
 
 
 
