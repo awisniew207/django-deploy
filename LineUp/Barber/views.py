@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import HttpResponse
 from django.core.exceptions import *
 from django.contrib.auth.models import User, Group
@@ -12,12 +12,17 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
-from .models import Customer, Barber
+from .models import Customer, Barber, create_or_update_timeslots_for_barber
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.views import View
 from django.shortcuts import get_object_or_404
-
+from .models import Barber, TimeSlot
+from django.core.serializers import serialize
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import pytz
 
 class CustomerSignUpView(CreateView):
     model = Customer
@@ -193,4 +198,57 @@ class WriteReviewView(View):
         return render(request, 'Barber/write_review.html', {'form': form, 'barber': barber})
 
 
+def book_view(request):
+    barbers = Barber.objects.all()
+    timeslots_data = {}
 
+    for barber in barbers:
+        timeslots = TimeSlot.objects.filter(barber=barber, is_booked=False)
+        # Use barber.user.id as the key since Barber's primary key is User
+        timeslots_data[barber.user.id] = json.loads(serialize('json', timeslots))
+    
+    print("Timeslots Data:", timeslots_data)
+
+    context = {
+        'barbers': barbers, 
+        'timeslots_data': json.dumps(timeslots_data)
+    }
+    return render(request, 'Barber/book.html', context)
+
+@csrf_exempt
+def book_timeslot(request):
+    if request.method == 'POST':
+        # Extract timeslot ID from request and implement booking logic
+        # ...
+        return JsonResponse({'status': 'success', 'message': 'Timeslot booked successfully.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+
+
+@login_required
+def update_working_hours(request):
+    barber = get_object_or_404(Barber, user=request.user)
+    
+    if request.method == 'POST':
+        form = BarberWorkingHoursForm(request.POST, instance=barber)
+        if form.is_valid():
+            form.save()
+            create_or_update_timeslots_for_barber(barber)
+            return redirect('barberEditProfileView', slug=barber.user.slug)
+    else:
+        form = BarberWorkingHoursForm(instance=barber)
+
+    return render(request, 'Barber/update_working_hours.html', {'form': form})
+
+def convert_utc_to_pacific(utc_time):
+    pacific_zone = pytz.timezone('America/Los_Angeles')
+    return utc_time.astimezone(pacific_zone)
+'''
+def update_or_create_barber_timeslots(barber):
+    # Logic to update/create timeslots based on the barber's new working hours
+    # For example, delete existing timeslots and create new ones
+    # within the new working hours timeframe
+    TimeSlot.objects.filter(barber=barber).delete()
+    create_or_update_timeslots_for_barber(barber)
+    '''

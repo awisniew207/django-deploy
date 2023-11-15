@@ -138,6 +138,9 @@ class ReviewForm(forms.ModelForm):
         # Add other fields and widgets as needed
 
 
-
+class BarberWorkingHoursForm(forms.ModelForm):
+    class Meta:
+        model = Barber
+        fields = ['work_start_time', 'work_end_time']
 
 

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Book An Appointment</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+    <style>
+    .time-slot {
+        cursor: pointer;
+        margin: 5px;
+        padding: 5px;
+        border: 1px solid #333;
+    }
+
+    .time-slot.taken {
+        background-color: grey;
+        color: white;
+        cursor: not-allowed;
+    }
+    </style>
+</head>
+<body>
+    <h1>Book Your Appointment</h1>
+
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'index' %}" class="button is-primary">Home</a>
+    </div>
+    
+    <div id="barbers">
+        {% for barber in barbers %}
+        <div class="barber" onclick="showTimes({{ barber.user.id }})">
+            {{ barber.user.get_full_name }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="timeslots" style="display:none;"></div>
+
+    <script>
+        var timeslotsData = JSON.parse('{{ timeslots_data|safe }}');
+        console.log(timeslotsData); // Check what data is being received
+
+        function showTimes(barberId) {
+            console.log("Showing times for barber ID:", barberId);
+            var timeslots = timeslotsData[barberId];
+            console.log("Timeslots for this barber:", timeslots);
+            var timeslotsDiv = document.getElementById('timeslots');
+            timeslotsDiv.innerHTML = ''; // Clear previous timeslots
+
+            timeslots.forEach(function(timeslot) {
+                var slotDiv = document.createElement('div');
+                slotDiv.className = 'time-slot';
+                slotDiv.setAttribute('data-id', timeslot.pk); // Use primary key as data-id
+
+                // Format timeslot time
+                var startTime = new Date(timeslot.fields.start_time);
+                var endTime = new Date(timeslot.fields.end_time);
+                var dayString = startTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                slotDiv.innerText = dayString + ' ' + startTime.toLocaleTimeString() + ' - ' + endTime.toLocaleTimeString();
+
+                slotDiv.onclick = function() { bookTime(timeslot.pk); };
+                timeslotsDiv.appendChild(slotDiv);
+            });
+
+            timeslotsDiv.style.display = 'block';
+        }
+
+        function bookTime(timeslotId) {
+            fetch("{% url 'book_timeslot' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken') // Function to get CSRF token from cookies
+                },
+                body: 'timeslot_id=' + timeslotId
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === 'success') {
+                    // Update the UI to reflect the booked timeslot
+                    document.querySelector('.time-slot[data-id="' + timeslotId + '"]').classList.add('taken');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
+

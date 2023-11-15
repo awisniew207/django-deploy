@@ -5,6 +5,12 @@ from autoslug import AutoSlugField
 from django.utils.text import slugify
 from django.core.validators import MaxValueValidator, MinValueValidator
 User = settings.AUTH_USER_MODEL
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
+from datetime import timedelta, datetime, time
+from django.db.models import TimeField
+
 '''
 class Shop(models.Model):
     affiliation_code = models.CharField(unique=True, max_length=20)                            # Each shop has this unique code, needed when creating 
@@ -114,6 +120,8 @@ class Customer(models.Model):
 class Barber(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     is_barber = True
+    work_start_time = TimeField(default=time(9, 0))  # Default to 9:00 AM
+    work_end_time = TimeField(default=time(17, 0))   # Default to 5:00 PM
 
 
     def __str__(self):
@@ -136,3 +144,49 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.customer.username} for {self.barber.user.username}"
+    
+class TimeSlot(models.Model):
+    barber = models.ForeignKey(Barber, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    is_booked = models.BooleanField(default=False)
+
+class Appointment(models.Model):
+    timeslot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+'''
+@receiver(post_save, sender=Barber)
+def create_timeslots_for_barber(sender, instance, created, **kwargs):
+    if created:
+        start_date = timezone.now().date()
+        for day_delta in range(7):  # Adjust as needed
+            day = start_date + timedelta(days=day_delta)
+            start_datetime = timezone.make_aware(datetime.combine(day, instance.work_start_time))
+            end_datetime = timezone.make_aware(datetime.combine(day, instance.work_end_time))
+
+            current_time = start_datetime
+            while current_time < end_datetime:
+                timeslot_end = current_time + timedelta(hours=1)
+                TimeSlot.objects.get_or_create(barber=instance, start_time=current_time, end_time=timeslot_end)
+                current_time = timeslot_end
+'''
+
+def create_or_update_timeslots_for_barber(barber_instance):
+    # Clear existing future timeslots for the barber
+    TimeSlot.objects.filter(barber=barber_instance, start_time__gt=timezone.now()).delete()
+
+    # Generate new timeslots
+    work_start_hour = barber_instance.work_start_time.hour
+    work_end_hour = barber_instance.work_end_time.hour
+
+    start_date = timezone.now().date()
+    for day_delta in range(7):  # Adjust as needed
+        day = start_date + timedelta(days=day_delta)
+
+        for hour in range(work_start_hour, work_end_hour):
+            start_time = timezone.make_aware(datetime.combine(day, time(hour, 0)))
+            end_time = start_time + timedelta(hours=1)  # 1-hour duration
+            TimeSlot.objects.create(barber=barber_instance, start_time=start_time, end_time=end_time)
+
