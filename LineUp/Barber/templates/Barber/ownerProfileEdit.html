@@ -1,0 +1,23 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Owner Profile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <!-- Add your existing styles here -->
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <!-- ... -->
+
+    <div class="container mt-4">
+        <h1 class="title">Edit Profile</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="button is-primary">Save Changes</button>
+        </form>
+    </div>
+</body>
+</html>

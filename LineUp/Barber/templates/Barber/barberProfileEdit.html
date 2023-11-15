@@ -1,30 +1,43 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Barber Profile</title>
+    <title>Customer Profile Page</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <style>
         body {
             font-family: "Garamond", serif;
         }
 
-        .navbar {
-            background-color: black;
-            color: white;
+        .hero.is-danger, .has-background-primary {
+            background-color: #333; /* Change the hero section background color */
+            color: white; /* Set text color to white for contrast */
         }
 
-        .profile-edit-form {
-            margin-top: 20px;
+        .button.is-primary {
+            background-color: #333; /* Set button color */
+            color: white; /* Set button text color */
+            border-color: white;
         }
 
-        /* Styles for the profile picture */
-        .profile-picture img {
-            max-width: 100%;
-            height: auto;
+        .button.is-primary:hover {
+            background-color: #eee; /* Lighter shade for hover effect */
+            color: #333;
+        }
+
+        input, textarea {
+            background-color: #eee; /* Light background for inputs */
+            color: #333; /* Text color for inputs */
+        }
+
+        label {
+            color: white; /* Set label text color */
+        }
+
+        .file-cta {
+            background-color: white; /* Set file input background */
+            color: #333; /* Set file input text color */
         }
     </style>
 </head>
@@ -57,9 +70,133 @@
             </form>
             <div class="field">
                 <a href="{% url 'update_working_hours' %}" class="button is-link">Edit Working Hours</a>
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">Edit Your Profile</h1>
+            </div>
+            <div class="column has-text-right">
+                <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
             </div>
         </div>
     </section>
+
+    <div class="container mt-4">
+        
+
+        <form id="profile-form" enctype="multipart/form-data" method="post" action="">
+            {% csrf_token %}
+            <div class="columns">
+                <div class="column is-one-third">
+                    <div class="profile-picture">
+                        <img src="{{ user.profile_pic.url }}" alt="User's Profile Picture">
+                        <div class="file is-centered is-boxed">
+                            <label class="file-label">
+                                <input class="file-input" type="file" id="profile_pic" name="profile_pic" accept="image/*">
+                                <span class="file-cta">
+                                    <span class="file-icon">
+                                        <i class="fas fa-upload"></i>
+                                    </span>
+                                    <span class="file-label">Choose a file…</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <label class="label" for="first-name">First Name</label>
+                        <div class="control">
+                            <input class="input" type="text" id="first-name" name="first_name" value="{{ user.first_name }}" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="last-name">Last Name</label>
+                        <div class="control">
+                            <input class="input" type="text" id="last-name" name="last_name" value="{{ user.last_name }}" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="phone-number">Phone Number</label>
+                        <div class="control">
+                            <input class="input" type="tel" id="phone-number" name="phone_num" value="{{ user.phone_num }}" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="service-list">
+                        <label class="label">Existing Services</label>
+                        <ul>
+                            {% for service in existing_services %}
+                                <li>
+                                    {{ service.title }} - {{ service.description }} - Duration: {{ service.duration }} - Price: {{ service.price }}
+                                    <!-- Add buttons/links for editing/deleting services -->
+                                    <a href="{% url 'edit_service' service.id %}">Edit</a> | 
+                                    <a href="{% url 'delete_service' service.id %}">Delete</a>
+                                </li>
+                            {% empty %}
+                                <li>No services found.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="add-service">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="field">
+                                <label class="label" for="title">Title</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="service-title" name="title" value="{% if service_form.title.value %}{{ service_form.title.value }}{% endif %}" >
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label" for="description">Description</label>
+                                <div class="control">
+                                    <textarea class="textarea" id="service-description" name="description" r>{% if service_form.description.value %}{{ service_form.description.value }}{% endif %}</textarea>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label" for="price">Price</label>
+                                <div class="control">
+                                    <input class="input" type="number" id="price" name="price" value="{{ service_form.price.value }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label" for="duration">Duration (in minutes)</label>
+                                <div class="control">
+                                    <input class="input" type="number" id="duration" name="duration" value="{{ service_form.duration.value }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <button class="button is-primary" type="submit">Add Service</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                                        
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("profile_pic").addEventListener("change", function () {
+            var input = this;
+            var img = document.querySelector(".profile-picture img"); // Select the image element
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+    </script>
 </body>
 </html>
-

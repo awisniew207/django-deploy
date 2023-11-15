@@ -17,12 +17,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.views import View
 from django.shortcuts import get_object_or_404
-from .models import Barber, TimeSlot
-from django.core.serializers import serialize
-import json
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import pytz
+
 
 class CustomerSignUpView(CreateView):
     model = Customer
@@ -30,17 +25,18 @@ class CustomerSignUpView(CreateView):
     template_name = 'Barber/customerSignUp.html'
 
     def form_valid(self, form):
+        # Save the new user first
         user = form.save()
-        login(self.request, user)  # Log in the user
-        return super().form_valid(form)
+        # Then log the user in
+        login(self.request, user)
 
-    def get_success_url(self):
-        return reverse_lazy('login')
+        # After successful registration and login, redirect to a specific page
+        # For example, redirect to the barber's profile page
+        return redirect('customerProfileView', slug=user.slug)
 
     def form_invalid(self, form):
-        # Set initial values for the username and email fields
-        form.fields['username'].initial = self.request.POST.get('username')
-        form.fields['email'].initial = self.request.POST.get('email')
+        # Logging form errors can be helpful for debugging
+        print("Form is invalid:", form.errors)
         return super().form_invalid(form)
 
 class LoginView(LoginView):
@@ -56,20 +52,24 @@ class CustomerLogoutView(LogoutView):
     next_page = reverse_lazy('custom_logout')
 
 class CustomerUpdateProfile(UpdateView):
-    model = Customer
+    model = User
     form_class = CustomerProfileForm
-    template_name = 'Barber/customerProfileEdit.html'
+    template_name = 'Barber/customerProfileEdit.html'  # Adjust the template path as needed
 
     def get_object(self, queryset=None):
-        return self.request.user
+        # Get the User instance for the logged-in customer
+        return get_object_or_404(User, username=self.request.user.username)
 
     def form_valid(self, form):
-        # Perform additional actions upon form submission if needed
+        print("Form is valid. Saving changes.")
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        print("Form is invalid:", form.errors)
+        return super().form_invalid(form)
+
     def get_success_url(self):
-        # Redirect to the user's profile using their slug
-        return reverse_lazy('customerProfileView', kwargs={'slug': self.request.user.slug})
+        return reverse_lazy('customerProfileView', kwargs={'slug': self.object.slug})
 
 class UserProfileRedirectView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -80,11 +80,16 @@ class UserProfileRedirectView(LoginRequiredMixin, View):
             print("Redirecting to customer profile view")
             # Redirect to the customer profile page
             return redirect('customerProfileView', slug=user.slug)
-        elif user.is_barber:
+        if user.is_barber:
             # Debugging statement
             print("Redirecting to barber profile view")
             # Redirect to the barber profile page
             return redirect('barberProfileView', slug=user.slug)
+        if user.is_owner:
+            # Debugging statement
+            print("Redirecting to owner profile view")
+            # Redirect to the barber profile page
+            return redirect('ownerProfileView', slug=user.slug)
         else:
             # Handle other user types or scenarios as needed
             return redirect('index')  # Redirect to the home page or an appropriate fallback
@@ -92,70 +97,96 @@ class UserProfileRedirectView(LoginRequiredMixin, View):
 class CustomerProfileView(LoginRequiredMixin, DetailView):
     model = Customer
     template_name = 'Barber/customerProfileView.html'
-    context_object_name = 'customer'
+    context_object_name = 'customer'  # This will be the customer instance
     slug_url_kwarg = 'slug'
 
-    # Ensure that only the user's own profile is accessible
     def get_object(self, queryset=None):
-        user = super().get_object(queryset)
-        return user
+        # Fetch the Customer instance using the slug from the URL
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        customer = Customer.objects.filter(user__slug=slug).first()
+        return customer
 
-    # Optionally, you can specify a custom query to fetch the user profile
-    def get_queryset(self):
-        return User.objects.all()
-
-    # Set a context variable indicating whether the user is viewing their own profile
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_own_profile'] = self.request.user == self.object
+
+        # Get the Customer instance related to the profile being viewed
+        customer = self.get_object()
+
+        if customer:
+            # Fetch reviews written by the customer
+            context['reviews'] = Review.objects.filter(customer=customer.user)
+
+            # Check if the logged-in user is viewing their own profile
+            context['is_own_profile'] = self.request.user == customer.user
+
+            # Pass additional customer information if needed
+            context['customer_info'] = {
+                'first_name': customer.user.first_name,
+                'last_name': customer.user.last_name,
+                'phone_number': customer.user.phone_num,
+                # Any other fields you want to include
+            }
+        else:
+            # Handle the case where the customer does not exist
+            context['reviews'] = []
+            context['is_own_profile'] = False
+            context['customer_info'] = {}
+
         return context
+
+#---------------------------------------------------------------------------------------
 
 class BarberProfileView(LoginRequiredMixin, DetailView):
     model = Barber
     template_name = 'Barber/barberProfileView.html'
-    context_object_name = 'barber'  # Name for the context variable
-    slug_url_kwarg = 'slug'  # Customize the slug parameter as needed
+    context_object_name = 'barber'
+    slug_url_kwarg = 'slug'
 
     def get_object(self, queryset=None):
         slug = self.kwargs.get(self.slug_url_kwarg)
-        barber = Barber.objects.filter(user__slug=slug).first()
-        return barber
+        return Barber.objects.filter(user__slug=slug).first()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # Debugging
-        print("Request user:", self.request.user)
-        print("Profile object:", self.object)
-        print("Profile object's user:", getattr(self.object, 'user', None))
-
         barber = self.get_object()
-        context['reviews'] = Review.objects.filter(barber=barber)
 
-        if isinstance(self.object, Barber) and self.request.user == self.object.user:
-            context['is_own_profile'] = True
-        else:
-            context['is_own_profile'] = False
+        reviews_list = Review.objects.filter(barber=barber).order_by('-created_at')
+        paginator = Paginator(reviews_list, 3)  # Show 3 reviews per page
+
+        page = self.request.GET.get('page')
+
+        try:
+            page_obj = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            page_obj = paginator.page(paginator.num_pages)
+
+        context['reviews'] = page_obj
+        context['is_own_profile'] = self.request.user == barber.user
 
         return context
 
-
-#---------------------------------------------------------------------------------------
 class BarberSignUpView(CreateView):
     model = Barber
     form_class = BarberSignUpForm
     template_name = 'Barber/barberSignUp.html'
 
     def form_valid(self, form):
+        # Save the new user first
         user = form.save()
-        login(self.request, user)  # Log in the user
-        return redirect('login')  # Directly redirect instead of super().form_valid(form)
+        # Then log the user in
+        login(self.request, user)
 
-    def get_success_url(self):
-        return reverse_lazy('login')  # Ensure this URL is correctly defined in your urls.py
+        # After successful registration and login, redirect to a specific page
+        # For example, redirect to the barber's profile page
+        return redirect('barberProfileView', slug=user.slug)
 
     def form_invalid(self, form):
-        # Consider logging or printing form errors here for debugging
+        # Logging form errors can be helpful for debugging
+        print("Form is invalid:", form.errors)
         return super().form_invalid(form)
 
 class BarberUpdateProfile(UpdateView):
@@ -180,6 +211,10 @@ def index_view(request):
     # Your view logic here
     return render(request, 'Barber/index.html')
 
+def redir_view(request):
+    # Your view logic here
+    return render(request, 'Barber/redirect.html')
+
 class WriteReviewView(View):
     def get(self, request, slug):
         barber = get_object_or_404(Barber, user__slug=slug)
@@ -198,57 +233,4 @@ class WriteReviewView(View):
         return render(request, 'Barber/write_review.html', {'form': form, 'barber': barber})
 
 
-def book_view(request):
-    barbers = Barber.objects.all()
-    timeslots_data = {}
 
-    for barber in barbers:
-        timeslots = TimeSlot.objects.filter(barber=barber, is_booked=False)
-        # Use barber.user.id as the key since Barber's primary key is User
-        timeslots_data[barber.user.id] = json.loads(serialize('json', timeslots))
-    
-    print("Timeslots Data:", timeslots_data)
-
-    context = {
-        'barbers': barbers, 
-        'timeslots_data': json.dumps(timeslots_data)
-    }
-    return render(request, 'Barber/book.html', context)
-
-@csrf_exempt
-def book_timeslot(request):
-    if request.method == 'POST':
-        # Extract timeslot ID from request and implement booking logic
-        # ...
-        return JsonResponse({'status': 'success', 'message': 'Timeslot booked successfully.'})
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
-
-
-
-@login_required
-def update_working_hours(request):
-    barber = get_object_or_404(Barber, user=request.user)
-    
-    if request.method == 'POST':
-        form = BarberWorkingHoursForm(request.POST, instance=barber)
-        if form.is_valid():
-            form.save()
-            create_or_update_timeslots_for_barber(barber)
-            return redirect('barberEditProfileView', slug=barber.user.slug)
-    else:
-        form = BarberWorkingHoursForm(instance=barber)
-
-    return render(request, 'Barber/update_working_hours.html', {'form': form})
-
-def convert_utc_to_pacific(utc_time):
-    pacific_zone = pytz.timezone('America/Los_Angeles')
-    return utc_time.astimezone(pacific_zone)
-'''
-def update_or_create_barber_timeslots(barber):
-    # Logic to update/create timeslots based on the barber's new working hours
-    # For example, delete existing timeslots and create new ones
-    # within the new working hours timeframe
-    TimeSlot.objects.filter(barber=barber).delete()
-    create_or_update_timeslots_for_barber(barber)
-    '''

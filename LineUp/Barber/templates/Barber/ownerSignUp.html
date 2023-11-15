@@ -1,0 +1,93 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Owner Sign Up</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'Barber/styles2.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title has-text-white">LineUp</h1>
+        </div>
+    </section>
+
+    <section class="section signup-container">
+        <div class="container">
+            <h1 class="title has-text-white">Owner Sign Up</h1>
+            
+            <form method="post" action="{% url 'ownerSignup' %}" class="form">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label class="label has-text-white" for="username">Username</label>
+                    <div class="control">
+                        <input class="input" type="text" id="username" name="username" required>
+                        {% if form.username.errors %}
+                            <p class="help is-danger">{{ form.username.errors.as_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label has-text-white" for="first_name">First Name</label>
+                    <div class="control">
+                        <input class="input" type="text" id="first_name" name="first_name" required>
+                        {% if form.first_name.errors %}
+                            <p class="help is-danger">{{ form.first_name.errors.as_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label has-text-white" for="last_name">Last Name</label>
+                    <div class="control">
+                        <input class="input" type="text" id="last_name" name="last_name" required>
+                        {% if form.last_name.errors %}
+                            <p class="help is-danger">{{ form.last_name.errors.as_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label has-text-white" for="email">Email</label>
+                    <div class="control">
+                        <input class="input" type="email" id="email" name="email" required>
+                        {% if form.email.errors %}
+                            <p class="help is-danger">{{ form.email.errors.as_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label has-text-white" for="password1">Password</label>
+                    <div class="control">
+                        <input class="input" type="password" id="password1" name="password1" required>
+                        {% if form.password1.errors %}
+                            <p class="help is-danger">{{ form.password1.errors.as_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label has-text-white" for="password2">Confirm Password</label>
+                    <div class="control">
+                        <input class="input" type="password" id="password2" name="password2" required>
+                        {% if form.password2.errors %}
+                            <p class="help is-danger">{{ form.password2.errors.as_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary" type="submit">Sign Up</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

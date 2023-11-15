@@ -87,3 +87,8 @@ footer {
     right: 10px;
     font-weight: bold;
 }
+
+.block-display a.button {
+    display: block; /* or display: inline-block; */
+    margin-bottom: 10px; /* Adjust margin for spacing */
+}

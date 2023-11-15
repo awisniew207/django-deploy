@@ -1,0 +1,83 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Owner Profile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            font-family: "Garamond", serif;
+            background-color: white;
+            color: #333;
+        }
+
+        .hero.is-danger, .has-background-primary {
+            background-color: #333;
+            color: white;
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .button.is-primary {
+            background-color: #333;
+            border-color: #333;
+        }
+
+        .button.is-primary:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">Owner Profile</h1>
+                    </div>
+                    <div class="column has-text-right">
+                        <a href="{% url 'index' %}" class="button is-light">Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mt-4">
+        <div class="columns">
+            <div class="column is-one-third">
+                <!-- Owner Profile Information -->
+                <div class="profile-picture">
+                    <img src="{% if owner.user.profile_pic %}{{ owner.user.profile_pic.url }}{% else %}default-profile.jpg{% endif %}" alt="Profile Picture">
+                </div>
+                <h2 class="title is-4">{{ owner.user.get_full_name }}</h2>
+                <p><strong>Phone Number: </strong>{{ owner.user.phone_num }}</p>
+
+                <!-- Shop Information -->
+                {% if owner.owned_shop %}
+                    <h3 class="title is-5">Shop: {{ owner.owned_shop.name }}</h3>
+                    <p><strong>Address: </strong>{{ owner.owned_shop.address }}</p>
+                    <p>{{ owner.owned_shop.description }}</p>
+                {% else %}
+                    <p>No shop registered yet.</p>
+                {% endif %}
+            </div>
+            <div class="column">
+                <!-- Additional Content (if needed) -->
+            </div>
+        </div>
+
+        <div class="column">
+            {% if is_own_profile %}
+            <footer class="has-background-white has-text-black">
+                <a href="{% url 'ownerEditProfileView' slug=owner.user.slug %}" class="button is-primary">Edit Profile</a>
+            </footer>
+        {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Registration</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        .navbar {
+            background-color: black;
+        }
+        .navbar-item, .navbar-burger {
+            color: white;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <span class="navbar-item">Shop Registration</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Shop Registration Form Section -->
+    <section class="section form-container">
+        <div class="container">
+            <h1 class="title">Register Your Shop</h1>
+            
+            <form method="post" action="{% url 'shopRegistration' %}">
+                {% csrf_token %}
+                
+                <div class="field">
+                    <label class="label" for="name">Shop Name</label>
+                    <div class="control">
+                        <input class="input" type="text" id="name" name="name" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="address">Address</label>
+                    <div class="control">
+                        <input class="input" type="text" id="address" name="address" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="description">Description</label>
+                    <div class="control">
+                        <textarea class="textarea" id="description" name="description"></textarea>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary" type="submit">Register Shop</button>
+                    </div>
+                </div>
+
+                <!-- Display Form Errors -->
+                {% if form.errors %}
+                <div class="notification is-danger">
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            <li>{{ field }}: {{ errors }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </section>
+</body>
+</html>

@@ -16,15 +16,18 @@
 
     <section class="section signup-container">
         <div class="container">
-            <!-- Customer Sign Up section -->
             <h1 class="title has-text-white">Customer Sign Up</h1>
             
             <form method="post" action="{% url 'customerSignup' %}" class="form">
                 {% csrf_token %}
+                
                 <div class="field">
                     <label class="label has-text-white" for="username">Username</label>
                     <div class="control">
                         <input class="input" type="text" id="username" name="username" required>
+                        {% if form.username.errors %}
+                            <p class="help is-danger">{{ form.username.errors.as_text }}</p>
+                        {% endif %}
                     </div>
                 </div>
             
@@ -32,6 +35,9 @@
                     <label class="label has-text-white" for="email">Email</label>
                     <div class="control">
                         <input class="input" type="email" id="email" name="email" required>
+                        {% if form.email.errors %}
+                            <p class="help is-danger">{{ form.email.errors.as_text }}</p>
+                        {% endif %}
                     </div>
                 </div>
             
@@ -39,6 +45,9 @@
                     <label class="label has-text-white" for="password1">Password</label>
                     <div class="control">
                         <input class="input" type="password" id="password1" name="password1" required>
+                        {% if form.password1.errors %}
+                            <p class="help is-danger">{{ form.password1.errors.as_text }}</p>
+                        {% endif %}
                     </div>
                 </div>
             
@@ -46,6 +55,9 @@
                     <label class="label has-text-white" for="password2">Confirm Password</label>
                     <div class="control">
                         <input class="input" type="password" id="password2" name="password2" required>
+                        {% if form.password2.errors %}
+                            <p class="help is-danger">{{ form.password2.errors.as_text }}</p>
+                        {% endif %}
                     </div>
                 </div>
             
@@ -55,17 +67,6 @@
                     </div>
                 </div>
             </form>
-            
-            <!-- Form Errors -->
-            {% if form.errors %}
-            <div class="notification is-danger">
-                <ul>
-                    {% for field, errors in form.errors.items %}
-                        <li>{{ field }}: {{ errors }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
         </div>
     </section>
 </body>

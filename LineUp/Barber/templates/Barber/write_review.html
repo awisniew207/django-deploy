@@ -44,7 +44,18 @@
             
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                <!-- Render form fields individually -->
+                {% for field in form %}
+                    {% if field.name == 'content' %}
+                        <h2 class="subtitle">Content</h2>
+                        <p>{{ field }}</p> <!-- Render only the field without its label -->
+                    {% else %}
+                        <p>{{ field.label_tag }} {{ field }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="help is-danger">{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
                 <button class="button is-primary" type="submit">Submit Review</button>
             </form>
         </div>

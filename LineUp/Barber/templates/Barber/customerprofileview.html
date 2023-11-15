@@ -7,61 +7,98 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <style>
         body {
-            font-family: 'Garamond', serif;
-            background-color: white; /* Set the main background color to white */
-            color: #333; /* Set the main text color to #333 */
+            font-family: "Garamond", serif;
+            background-color: white; /* Set the background color to white */
+            color: #333; /* Set the text color to #333 */
         }
 
-        .cool-font {
-            font-family: 'YourCoolCartoonishFont', sans-serif;
-            /* Define any other font properties you like */
+        .hero.is-danger, .has-background-primary {
+            background-color: #333; /* Change the background color to #333 */
+            color: white; /* Set text color to white for contrast */
         }
 
-        header, .button.is-primary {
-            background-color: #333; /* Change background color to #333 */
-            color: white; /* Change text color to white for contrast */
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add some shadow for better visibility */
         }
 
-        footer.has-background-white, .button.is-light {
-            background-color: white; /* Keep footer background white */
-            color: #333; /* Footer text color */
+        .button.is-primary {
+            background-color: #333; /* Set button color */
+            border-color: #333;
         }
 
-        .button.is-primary:hover, .button.is-light:hover {
-            background-color: #555; /* Lighter shade for hover effect */
-            color: white;
+        .button.is-primary:hover {
+            background-color: #555; /* Darker shade for hover effect */
         }
-
-        /* Additional style adjustments as needed */
     </style>
 </head>
 <body>
-    <header class="has-text-white">
-        <h1 class="has-text-white title">Profile</h1>
-        <div class="column has-text-right">
-            <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
-        </div>
-    </header>
-
-    <div class="profile-container">
-        <div class="profile-picture">
-            <img src="{{ customer.profile_pic.url }}" alt="Profile Picture" style="width: 400px; height: auto;">
-        </div>
-
-        <div class="column">
-            <div class="profile-details">
-                <h2 class="title is-4">{{ customer.first_name }} {{ customer.last_name }}</h2>
-                <p class="cool-font">Username: {{ customer.username }}</p>
-                <p class="cool-font">Email: {{ customer.email }}</p>
-                <p class="cool-font">Phone Number: {{ customer.phone_num }}</p>
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">Profile</h1>
+                    </div>
+                    <div class="column has-text-right">
+                        <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <footer class="has-background-white has-text-black">
-        {% if is_own_profile %}
-            <a href="{% url 'customerEditProfileView' customer.slug %}" class="button is-primary">Edit Profile</a>
-        {% endif %}
-    </footer>
+    
+    <div class="container mt-4">
+        <div class="columns">
+            <div class="column is-one-third">
+                <!-- Customer Profile Information -->
+                <div class="profile-picture">
+                    <img src="{% if customer.user.profile_pic %}{{ customer.user.profile_pic.url }}{% else %}default-profile.jpg{% endif %}" alt="Profile Picture">
+                </div>
+                <!-- Full Name as Subheading -->
+                <h2 class="title is-4">{{ customer.user.get_full_name }}</h2>
+                <!-- Display Phone Number -->
+                <p><strong>Phone Number: </strong>{{ customer.user.phone_num }}</p>
+            </div>
+
+<!-- Reviews Section -->
+<div class="reviews-section">
+    <h2 class="title is-4">My Reviews</h2>
+    {% for review in reviews %}
+        <div class="box">
+            <article class="media">
+                <div class="media-left">
+                    <figure class="image is-64x64">
+                        <img src="{{ review.barber.user.profile_pic.url }}" alt="{{ review.barber.user.username }}'s Profile Picture">
+                    </figure>
+                </div>
+                <div class="media-content">
+                    <div class="content">
+                        <p>
+                            <strong>{{ review.barber.user.first_name }} {{ review.barber.user.last_name }}</strong>
+                            <br>
+                            Rating: {{ review.rating }}
+                            <br>
+                            {{ review.content }}
+                            <br>
+                            <small>Written on: {{ review.created_at|date:"Y-m-d" }}</small>
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </div>
+    {% empty %}
+        <p>You haven't written any reviews yet.</p>
+    {% endfor %}
+    </div>
+</div>
+
+<div class="column">
+    {% if is_own_profile %}
+        <footer class="has-background-white has-text-black">
+            <a href="{% url 'customerEditProfileView' slug=customer.user.slug %}" class="button is-primary">Edit Profile</a>
+        </footer>
+    {% endif %}
+</div>
 </body>
 </html>

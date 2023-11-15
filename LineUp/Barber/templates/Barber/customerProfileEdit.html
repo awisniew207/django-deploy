@@ -8,36 +8,26 @@
     <style>
         body {
             font-family: "Garamond", serif;
+            background-color: white; /* Set the background color to white */
+            color: #333; /* Set the text color to #333 */
         }
 
         .hero.is-danger, .has-background-primary {
-            background-color: #333; /* Change the hero section background color */
+            background-color: #333; /* Change the background color to #333 */
             color: white; /* Set text color to white for contrast */
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add some shadow for better visibility */
         }
 
         .button.is-primary {
             background-color: #333; /* Set button color */
-            color: white; /* Set button text color */
-            border-color: white;
+            border-color: #333;
         }
 
         .button.is-primary:hover {
-            background-color: #eee; /* Lighter shade for hover effect */
-            color: #333;
-        }
-
-        input, textarea {
-            background-color: #eee; /* Light background for inputs */
-            color: #333; /* Text color for inputs */
-        }
-
-        label {
-            color: white; /* Set label text color */
-        }
-
-        .file-cta {
-            background-color: white; /* Set file input background */
-            color: #333; /* Set file input text color */
+            background-color: #555; /* Darker shade for hover effect */
         }
     </style>
 </head>
@@ -45,10 +35,14 @@
     <section class="hero is-danger">
         <div class="hero-body">
             <div class="container">
-                <h1 class="title">Edit Your Profile</h1>
-            </div>
-            <div class="column has-text-right">
-                <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">Edit Profile</h1>
+                    </div>
+                    <div class="column has-text-right">
+                        <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
+                    </div>
+                </div>
             </div>
         </div>
     </section>

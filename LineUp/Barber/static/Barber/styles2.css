@@ -1,45 +1,45 @@
 body {
-    background-color: #4d4a4a; 
+    background-color: #4d4a4a;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    height: 100vh;
+    justify-content: center; /* Centers content vertically */
+    align-items: center; /* Centers content horizontally */
     font-family: 'Arial', sans-serif;
     color: #fff;
+    min-height: 100vh; /* Full viewport height */
+    overflow-y: auto; /* Allows scroll if content is larger than screen */
 }
 
 .title {
     text-align: center;
-    padding: 0px ;
+    margin-bottom: 20px; /* Give some spacing under the title */
 }
 
-
 .signup-container {
-    text-align: center;
+    width: 100%;
+    max-width: 500px; /* Maximum width of the form */
+    padding: 20px; /* Padding around the form */
+    box-sizing: border-box; /* Include padding in the width calculation */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .form {
-    display: inline-block;
-    max-width: 80%;
-    margin: auto;
+    width: 100%; /* Form takes the full width of the .signup-container */
 }
 
 .form .field {
-    margin-bottom: 100px;
+    margin-bottom: 20px; /* Spacing between form fields */
 }
 
 .form .label {
     text-align: left;
-    display: block;
     font-weight: bold;
     color: #fff;
     margin-bottom: 5px;
-}
-
-.styled-checkbox {
-    display: none; 
 }
 
 .checkmark {
@@ -68,9 +68,28 @@ body {
     display: block;
 }
 
+/* New styles to handle form errors */
+.input:invalid {
+    background-color: white;
+    border: 1px solid #ced4da;
+}
+
+.error input, .error select, .error textarea {
+    background-color: white;
+    border: 1px solid red;
+}
+
+.form .field input, .form .field select, .form .field textarea {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Ensure the footer is at the bottom */
 footer {
-    text-align: center;
+    margin-top: auto; /* Push the footer to the bottom of the flex container */
+    width: 100%; /* Full width */
     padding: 10px 0;
     background-color: #333;
     color: #fff;
+    text-align: center;
 }
