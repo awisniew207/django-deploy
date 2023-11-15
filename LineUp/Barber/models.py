@@ -197,3 +197,31 @@ def create_or_update_timeslots_for_barber(barber_instance):
             end_time = start_time + timedelta(hours=1)  # 1-hour duration
             TimeSlot.objects.create(barber=barber_instance, start_time=start_time, end_time=end_time)
 
+
+
+class Service(models.Model):
+    barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='barber_services')
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    duration = models.DurationField()
+
+    def __str__(self):
+        return f"{self.title} by {self.barber.user.username}"
+
+class Shop(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.OneToOneField(Owner, on_delete=models.SET_NULL, null=True, related_name='owned_shop')
+    barbers = models.ManyToManyField(Barber, related_name='shops')
+    address = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Shop, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+    
