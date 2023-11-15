@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.shortcuts import HttpResponse
 from django.core.exceptions import *
 from django.contrib.auth.models import User, Group
@@ -12,12 +12,12 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
-from .models import Customer, Barber, create_or_update_timeslots_for_barber
+from .models import Customer, Barber
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.views import View
 from django.shortcuts import get_object_or_404
-from .models import Barber, TimeSlot
+from .models import Barber, TimeSlot, create_or_update_timeslots_for_barber
 from django.core.serializers import serialize
 import json
 from django.http import JsonResponse
@@ -245,6 +245,17 @@ class OwnerSignUpView(CreateView):
     form_class = OwnerSignUpForm
     template_name = 'Barber/ownerSignUp.html'
 
+    def form_valid(self, form):
+        # Save the new user first
+        user = form.save()
+        # Then log the user in
+        login(self.request, user)
+    
+    def form_invalid(self, form):
+        # Logging form errors can be helpful for debugging
+        print("Form is invalid:", form.errors)
+        return super().form_invalid(form)
+
 def book_view(request):
     barbers = Barber.objects.all()
     timeslots_data = {}
@@ -270,8 +281,6 @@ def book_timeslot(request):
         return JsonResponse({'status': 'success', 'message': 'Timeslot booked successfully.'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
-
-
 
 @login_required
 def update_working_hours(request):
@@ -313,11 +322,6 @@ class OwnerSignUpView(CreateView):
             # After successful registration and login, redirect to a specific page
             # For example, redirect to the barber's profile page
             return redirect('shopRegistration')
-
-    def form_invalid(self, form):
-        # Logging form errors can be helpful for debugging
-        print("Form is invalid:", form.errors)
-        return super().form_invalid(form)
 
 class ShopRegistrationView(CreateView):
     model = Shop
@@ -373,4 +377,5 @@ class OwnerUpdateProfile(UpdateView):
 
     def get_success_url(self):
         # Redirect to the barber's profile page after successful update
+        return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
         return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})

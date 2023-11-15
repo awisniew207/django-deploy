@@ -197,6 +197,10 @@ def create_or_update_timeslots_for_barber(barber_instance):
             end_time = start_time + timedelta(hours=1)  # 1-hour duration
             TimeSlot.objects.create(barber=barber_instance, start_time=start_time, end_time=end_time)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 38722321c499c66b39960eadc6804bac4d6f44d7
 
 class Service(models.Model):
     barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='barber_services')
@@ -223,5 +227,4 @@ class Shop(models.Model):
 
     def __str__(self):
         return self.name
-
     

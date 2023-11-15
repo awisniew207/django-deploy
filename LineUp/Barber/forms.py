@@ -130,7 +130,10 @@ class ReviewForm(forms.ModelForm):
         fields = ['content', 'rating']
         # Add other fields and widgets as needed
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 38722321c499c66b39960eadc6804bac4d6f44d7
 class BarberWorkingHoursForm(forms.ModelForm):
     class Meta:
         model = Barber
