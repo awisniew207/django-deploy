@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.shortcuts import HttpResponse
 from django.core.exceptions import *
 from django.contrib.auth.models import User, Group
@@ -12,11 +12,12 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
-from .models import Customer, Barber, create_or_update_timeslots_for_barber
+from .models import Customer, Barber
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.views import View
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 class CustomerSignUpView(CreateView):
@@ -232,5 +233,79 @@ class WriteReviewView(View):
             return redirect('barberProfileView', slug=slug)  # Redirect to the barber's profile
         return render(request, 'Barber/write_review.html', {'form': form, 'barber': barber})
 
+#--------------------------------------------------------------------------------------------------
+class OwnerSignUpView(CreateView):
+    model = Owner
+    form_class = OwnerSignUpForm
+    template_name = 'Barber/ownerSignUp.html'
 
+    def form_valid(self, form):
+        # Save the new user first
+        user = form.save()
+        # Then log the user in
+        login(self.request, user)
 
+        # After successful registration and login, redirect to a specific page
+        # For example, redirect to the barber's profile page
+        return redirect('shopRegistration')
+
+    def form_invalid(self, form):
+        # Logging form errors can be helpful for debugging
+        print("Form is invalid:", form.errors)
+        return super().form_invalid(form)
+
+class ShopRegistrationView(CreateView):
+    model = Shop
+    form_class = ShopRegistrationForm
+    template_name = 'Barber/shopRegistration.html'
+    success_url = reverse_lazy('index')  # Replace with the URL to redirect after successful registration
+
+    def form_valid(self, form):
+        # Assuming the owner is the currently logged-in user
+        owner = Owner.objects.get(user=self.request.user)
+        shop = form.save(commit=False)
+        shop.owner = owner
+        shop.save()
+        return super().form_valid(form)
+
+class OwnerProfileView(DetailView):
+    model = Owner
+    template_name = 'Barber/ownerProfileView.html'
+    context_object_name = 'owner'
+    slug_url_kwarg = 'slug'
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        return Owner.objects.filter(user__slug=slug).first()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        owner = self.get_object()
+        # Add additional context if needed, e.g., owner's shop details
+        owner_shop = Shop.objects.filter(owner=self.object).first()
+        context['owner_shop'] = owner_shop
+        context['is_own_profile'] = self.request.user == owner.user
+        return context
+
+class OwnerUpdateProfile(UpdateView):
+    model = User
+    form_class = OwnerProfileForm
+    template_name = 'Barber/ownerProfileEdit.html'
+    success_url = reverse_lazy('owner_profile')  # URL to redirect after successfully editing the profile
+
+    def form_valid(self, form):
+        shop_id = form.cleaned_data['shop']
+        if shop_id:
+            selected_shop = Shop.objects.get(id=shop_id)
+            self.object.owned_shop = selected_shop
+        else:
+            self.object.owned_shop = None
+        self.object.save()
+        return super().form_valid(form)
+    def get_object(self, queryset=None):
+        # Get the User instance for the logged-in barber
+        return get_object_or_404(User, username=self.request.user.username)
+
+    def get_success_url(self):
+        # Redirect to the barber's profile page after successful update
+        return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
