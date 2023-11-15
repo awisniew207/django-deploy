@@ -198,6 +198,7 @@ def create_or_update_timeslots_for_barber(barber_instance):
             TimeSlot.objects.create(barber=barber_instance, start_time=start_time, end_time=end_time)
 
 
+
 class Service(models.Model):
     barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='barber_services')
     title = models.CharField(max_length=100)
@@ -223,3 +224,4 @@ class Shop(models.Model):
 
     def __str__(self):
         return self.name
+    
