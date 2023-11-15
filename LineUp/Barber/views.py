@@ -17,6 +17,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.views import View
 from django.shortcuts import get_object_or_404
+from .models import Barber, TimeSlot
+from django.core.serializers import serialize
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import pytz
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 class CustomerSignUpView(CreateView):
@@ -232,5 +239,138 @@ class WriteReviewView(View):
             return redirect('barberProfileView', slug=slug)  # Redirect to the barber's profile
         return render(request, 'Barber/write_review.html', {'form': form, 'barber': barber})
 
+#--------------------------------------------------------------------------------------------------
+class OwnerSignUpView(CreateView):
+    model = Owner
+    form_class = OwnerSignUpForm
+    template_name = 'Barber/ownerSignUp.html'
+
+def book_view(request):
+    barbers = Barber.objects.all()
+    timeslots_data = {}
+
+    for barber in barbers:
+        timeslots = TimeSlot.objects.filter(barber=barber, is_booked=False)
+        # Use barber.user.id as the key since Barber's primary key is User
+        timeslots_data[barber.user.id] = json.loads(serialize('json', timeslots))
+    
+    print("Timeslots Data:", timeslots_data)
+
+    context = {
+        'barbers': barbers, 
+        'timeslots_data': json.dumps(timeslots_data)
+    }
+    return render(request, 'Barber/book.html', context)
+
+@csrf_exempt
+def book_timeslot(request):
+    if request.method == 'POST':
+        # Extract timeslot ID from request and implement booking logic
+        # ...
+        return JsonResponse({'status': 'success', 'message': 'Timeslot booked successfully.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
+
+@login_required
+def update_working_hours(request):
+    barber = get_object_or_404(Barber, user=request.user)
+    
+    if request.method == 'POST':
+        form = BarberWorkingHoursForm(request.POST, instance=barber)
+        if form.is_valid():
+            form.save()
+            create_or_update_timeslots_for_barber(barber)
+            return redirect('barberEditProfileView', slug=barber.user.slug)
+    else:
+        form = BarberWorkingHoursForm(instance=barber)
+
+    return render(request, 'Barber/update_working_hours.html', {'form': form})
+
+def convert_utc_to_pacific(utc_time):
+    pacific_zone = pytz.timezone('America/Los_Angeles')
+    return utc_time.astimezone(pacific_zone)
+'''
+def update_or_create_barber_timeslots(barber):
+    # Logic to update/create timeslots based on the barber's new working hours
+    # For example, delete existing timeslots and create new ones
+    # within the new working hours timeframe
+    TimeSlot.objects.filter(barber=barber).delete()
+    create_or_update_timeslots_for_barber(barber)
+    '''
+
+class OwnerSignUpView(CreateView):
+    model = Owner
+    form_class = OwnerSignUpForm
+    template_name = 'Barber/ownerSignUp.html'
+    def form_valid(self, form):
+            # Save the new user first
+            user = form.save()
+            # Then log the user in
+            login(self.request, user)
+
+            # After successful registration and login, redirect to a specific page
+            # For example, redirect to the barber's profile page
+            return redirect('shopRegistration')
+
+    def form_invalid(self, form):
+        # Logging form errors can be helpful for debugging
+        print("Form is invalid:", form.errors)
+        return super().form_invalid(form)
+
+class ShopRegistrationView(CreateView):
+    model = Shop
+    form_class = ShopRegistrationForm
+    template_name = 'Barber/shopRegistration.html'
+    success_url = reverse_lazy('index')  # Replace with the URL to redirect after successful registration
+
+    def form_valid(self, form):
+        # Assuming the owner is the currently logged-in user
+        owner = Owner.objects.get(user=self.request.user)
+        shop = form.save(commit=False)
+        shop.owner = owner
+        shop.save()
+        return super().form_valid(form)
+
+class OwnerProfileView(DetailView):
+    model = Owner
+    template_name = 'Barber/ownerProfileView.html'
+    context_object_name = 'owner'
+    slug_url_kwarg = 'slug'
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        return Owner.objects.filter(user__slug=slug).first()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        owner = self.get_object()
+        # Add additional context if needed, e.g., owner's shop details
+        owner_shop = Shop.objects.filter(owner=self.object).first()
+        context['owner_shop'] = owner_shop
+        context['is_own_profile'] = self.request.user == owner.user
+        return context
+
+class OwnerUpdateProfile(UpdateView):
+    model = User
+    form_class = OwnerProfileForm
+    template_name = 'Barber/ownerProfileEdit.html'
+    success_url = reverse_lazy('owner_profile')  # URL to redirect after successfully editing the profile
+
+    def form_valid(self, form):
+        shop_id = form.cleaned_data['shop']
+        if shop_id:
+            selected_shop = Shop.objects.get(id=shop_id)
+            self.object.owned_shop = selected_shop
+        else:
+            self.object.owned_shop = None
+        self.object.save()
+        return super().form_valid(form)
+    def get_object(self, queryset=None):
+        # Get the User instance for the logged-in barber
+        return get_object_or_404(User, username=self.request.user.username)
+
+    def get_success_url(self):
+        # Redirect to the barber's profile page after successful update
+        return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})

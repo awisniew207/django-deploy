@@ -151,7 +151,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.customer.username} for {self.barber.user.username}"
-<<<<<<< HEAD
     
 class TimeSlot(models.Model):
     barber = models.ForeignKey(Barber, on_delete=models.CASCADE)
@@ -198,7 +197,6 @@ def create_or_update_timeslots_for_barber(barber_instance):
             end_time = start_time + timedelta(hours=1)  # 1-hour duration
             TimeSlot.objects.create(barber=barber_instance, start_time=start_time, end_time=end_time)
 
-=======
 
 class Service(models.Model):
     barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='barber_services')
@@ -227,4 +225,3 @@ class Shop(models.Model):
         return self.name
 
     
->>>>>>> 8b550e4980fc3e83f1e4e45831b01760f6891f8c
