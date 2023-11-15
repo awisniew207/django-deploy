@@ -117,7 +117,8 @@ AUTH_PASSWORD_VALIDATORS = [    {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
+USE_TZ = True  # Enable Django's timezone support
 
 USE_I18N = True
 

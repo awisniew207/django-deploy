@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+#from .views import book_view
 import debug_toolbar
 
 from Barber import views
@@ -41,6 +42,9 @@ urlpatterns = [
     path('index/', views.index_view, name='index'),
     path('', views.redir_view, name='redir'),    
     path('__debug__/', include(debug_toolbar.urls)),
+    path('book/', views.book_view, name='book'),
+    path('book-timeslot/', views.book_timeslot, name='book_timeslot'),
+    path('update-working-hours/', views.update_working_hours, name='update_working_hours'),
 ]
 
 if settings.DEBUG:
