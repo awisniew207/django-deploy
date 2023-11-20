@@ -40,36 +40,6 @@
             color: #333; /* Set file input text color */
         }
     </style>
-</head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="container">
-            <span class="navbar-item">Edit Profile</span>
-            {% if barber and barber.user %}
-                <a class="navbar-item" href="{% url 'barberProfileView' slug=barber.user.slug %}">Back to Profile</a>
-            {% else %}
-                <a class="navbar-item" href="{% url 'index' %}">Home</a> <!-- Fallback link -->
-            {% endif %}
-        </div>
-    </nav>
-
-    <!-- Edit Profile Form Section -->
-    <section class="section profile-edit-form">
-        <div class="container">
-            <h1 class="title">Edit Your Profile</h1>
-
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="field">
-                    <div class="control">
-                        <button class="button is-primary" type="submit">Save Changes</button>
-                    </div>
-                </div>
-            </form>
-            <div class="field">
-                <a href="{% url 'update_working_hours' %}" class="button is-link">Edit Working Hours</a>
     <section class="hero is-danger">
         <div class="hero-body">
             <div class="container">
@@ -173,13 +143,14 @@
                                 <div class="control">
                                     <button class="button is-primary" type="submit">Add Service</button>
                                 </div>
-                            </div>
                         </form>
-                    </div>
-                                        
+                    </div>                
                 </div>
             </div>
         </form>
+    </div>
+    <div class="field">
+        <a href="{% url 'update_working_hours' %}" class="button is-link">Edit Working Hours</a>
     </div>
 
     <script>
