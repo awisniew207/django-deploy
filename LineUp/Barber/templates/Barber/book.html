@@ -27,9 +27,9 @@
     
     <div id="barbers">
         {% for barber in barbers %}
-        <div class="barber" onclick="showTimes({{ barber.user.id }})">
-            {{ barber.user.get_full_name }}
-        </div>
+            <div class="barber" onclick="showTimes({{ barber.user.id }})">
+                {{ barber.user.get_full_name }}
+            </div>
         {% endfor %}
     </div>
 

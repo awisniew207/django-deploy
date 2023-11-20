@@ -7,38 +7,33 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 
 class CustomerSignUpForm(UserCreationForm):
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
-
+    # Add first_name and last_name fields
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(label="Email")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Set initial values for the username and email fields
-        if self.instance:
-            self.fields['username'].initial = self.instance.username
-            self.fields['email'].initial = self.instance.email
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('email',)
+        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['username'].initial = self.instance.username
+            self.fields['email'].initial = self.instance.email
 
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
         user.is_customer = True
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
         user.save()
 
-        # Check for an existing UserProfile or create a new one
-        try:
-            profile = Customer.objects.get(user=user)
-        except Customer.DoesNotExist:
-            profile = Customer(user=user)
-
-        # Now you can populate the UserProfile fields from the form
-        profile.username = self.cleaned_data['username']
-        profile.email = self.cleaned_data['email']
-
+        # Create or get a Customer profile
+        profile, created = Customer.objects.get_or_create(user=user)
         profile.save()
+
         return user
 
 class LoginForm(AuthenticationForm):
@@ -73,30 +68,31 @@ class CustomerProfileForm(forms.ModelForm):
 
 #-------------------------------------------------------------------------------
 class BarberSignUpForm(UserCreationForm):
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
+    # Add first_name and last_name fields
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(label="Email")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Initialize username and email if instance is available
-        if self.instance:
-            self.fields['username'].initial = self.instance.username
-            self.fields['email'].initial = self.instance.email
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('email',)
+        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['username'].initial = self.instance.username
+            self.fields['email'].initial = self.instance.email
 
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
         user.is_barber = True
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
         user.save()
 
         # Create or get a Barber profile
         profile, created = Barber.objects.get_or_create(user=user)
-        profile.first_name = self.cleaned_data.get('first_name', '')
-        profile.last_name = self.cleaned_data.get('last_name', '')
         profile.save()
 
         return user

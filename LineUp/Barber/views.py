@@ -258,6 +258,7 @@ class OwnerSignUpView(CreateView):
 
 def book_view(request):
     barbers = Barber.objects.all()
+    print("Barbers: ", barbers)
     timeslots_data = {}
 
     for barber in barbers:
@@ -378,4 +379,4 @@ class OwnerUpdateProfile(UpdateView):
     def get_success_url(self):
         # Redirect to the barber's profile page after successful update
         return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
-        return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
+        
