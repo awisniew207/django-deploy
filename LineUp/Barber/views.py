@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import HttpResponse
 from django.core.exceptions import *
 from django.contrib.auth.models import User, Group
@@ -14,10 +14,9 @@ from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
 from .models import Customer, Barber
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
+from django.http import JsonResponse
 from django.views import View
-from django.shortcuts import get_object_or_404
-from .models import Barber, TimeSlot, create_or_update_timeslots_for_barber
+from .models import Barber, TimeSlot, create_or_update_timeslots_for_barber, Service
 from django.core.serializers import serialize
 import json
 from django.http import JsonResponse
@@ -380,3 +379,48 @@ class OwnerUpdateProfile(UpdateView):
         # Redirect to the barber's profile page after successful update
         return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
         
+
+class ServiceManagementView(View):
+    template_name = 'Barber/manage_services.html'
+
+    def get(self, request):
+        form = ServiceForm()
+        services = Service.objects.all()
+        return render(request, self.template_name, {'services': services, 'form': form})
+
+    def post(self, request):
+        # Check if the form is for adding a new service or editing an existing one
+        service_id = request.POST.get('service_id')
+        if service_id:
+            # Editing an existing service
+            service = get_object_or_404(Service, id=service_id)
+            form = ServiceForm(request.POST, instance=service)
+        else:
+            # Adding a new service
+            form = ServiceForm(request.POST)
+
+        if form.is_valid():
+            service = form.save()
+            return JsonResponse({'status': 'success', 'message': 'Service saved successfully'})
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+class GetServiceDataView(View):
+    def get(self, request):
+        service_id = request.GET.get('service_id')
+        service = get_object_or_404(Service, id=service_id)
+        data = {'title': service.title, 'price': service.price}
+        return JsonResponse(data)
+
+class DeleteServiceView(View):
+    def post(self, request):
+        service_id = request.POST.get('service_id')
+        service = get_object_or_404(Service, id=service_id)
+        service.delete()
+        return JsonResponse({'status': 'success', 'message': 'Service deleted successfully'})
+
+class GetServicesListView(View):
+    def get(self, request):
+        services = Service.objects.all()
+        return render(request, 'Barber/services_list.html', {'services': services})
+    
