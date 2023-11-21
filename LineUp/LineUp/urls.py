@@ -46,7 +46,6 @@ urlpatterns = [
     path('book-timeslot/', views.book_timeslot, name='book_timeslot'),
     path('update-working-hours/', views.update_working_hours, name='update_working_hours'),
     path('barber/services/manage/', views.ServiceManagementView.as_view(), name='manage_services'),
-
 ]
 
 if settings.DEBUG:
