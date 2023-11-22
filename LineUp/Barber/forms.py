@@ -5,36 +5,42 @@ from django.db import transaction
 from .models import User, Customer, Barber, Review, Shop, Owner, Service
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
+    
 
 class CustomerSignUpForm(UserCreationForm):
-    # Add first_name and last_name fields
-    first_name = forms.CharField(max_length=30, required=True)
-    last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(label="Email")
-
-    class Meta(UserCreationForm.Meta):
-        model = User
-        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email',)
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Set initial values for the username and email fields
         if self.instance:
             self.fields['username'].initial = self.instance.username
             self.fields['email'].initial = self.instance.email
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = UserCreationForm.Meta.fields + ('email',)
 
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
         user.is_customer = True
-        user.first_name = self.cleaned_data.get('first_name')
-        user.last_name = self.cleaned_data.get('last_name')
         user.save()
 
-        # Create or get a Customer profile
-        profile, created = Customer.objects.get_or_create(user=user)
-        profile.save()
+        # Check for an existing UserProfile or create a new one
+        try:
+            profile = Customer.objects.get(user=user)
+        except Customer.DoesNotExist:
+            profile = Customer(user=user)
 
+        # Now you can populate the UserProfile fields from the form
+        profile.username = self.cleaned_data['username']
+        profile.email = self.cleaned_data['email']
+
+        profile.save()
         return user
+     
 
 class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
