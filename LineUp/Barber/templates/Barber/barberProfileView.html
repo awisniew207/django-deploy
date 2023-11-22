@@ -69,7 +69,20 @@
                 <!-- Services Section -->
                 <div class="services-section">
                     <h2 class="title is-4">Services</h2>
-                    <!-- Include Services Here -->
+                    {% if barber.services.all %}
+                        <ul>
+                            {% for service in barber.services.all %}
+                                <li>
+                                    <strong>{{ service.title }}</strong>
+                                    <p>{{ service.description }}</p>
+                                    <p>Duration: {{ service.duration }}</p>
+                                    <p>Price: ${{ service.price }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No services available.</p>
+                    {% endif %}
                 </div>
 
                 <div class="reviews-section">

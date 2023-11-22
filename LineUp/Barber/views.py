@@ -9,12 +9,12 @@ from django.views.generic.edit import CreateView, UpdateView
 from .forms import *
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
 from .models import Customer, Barber
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.views import View
 from .models import Barber, TimeSlot, create_or_update_timeslots_for_barber, Service
 from django.core.serializers import serialize
@@ -380,47 +380,45 @@ class OwnerUpdateProfile(UpdateView):
         return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
         
 
-class ServiceManagementView(View):
+class ManageServicesView(View):
+    model = Service
+    form_class = ServiceForm
     template_name = 'Barber/manage_services.html'
+    success_url = reverse_lazy('manage_services')
 
-    def get(self, request):
-        form = ServiceForm()
+    def form_valid(self, form):
+        # Associate the logged-in barber with the service
+        form.instance.barber = Barber.objects.get(user=self.request.user)
+        return super().form_valid(form)
+
+    def get(self, request, service_id=None):
         services = Service.objects.all()
+        form = ServiceForm(instance=get_object_or_404(Service, pk=service_id)) if service_id else ServiceForm()
         return render(request, self.template_name, {'services': services, 'form': form})
 
-    def post(self, request):
-        # Check if the form is for adding a new service or editing an existing one
-        service_id = request.POST.get('service_id')
-        if service_id:
-            # Editing an existing service
-            service = get_object_or_404(Service, id=service_id)
-            form = ServiceForm(request.POST, instance=service)
-        else:
-            # Adding a new service
-            form = ServiceForm(request.POST)
+    def post(self, request, service_id=None):
+        # Determine the action URL based on whether the form is for adding or editing
+        action_url = reverse('manage_services') if service_id is None else reverse('edit_service', args=[service_id])
+        
+        form = ServiceForm(request.POST, instance=get_object_or_404(Service, pk=service_id)) if service_id else ServiceForm(request.POST)
 
+        # Check if the form is valid
         if form.is_valid():
-            service = form.save()
-            return JsonResponse({'status': 'success', 'message': 'Service saved successfully'})
-        else:
-            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+            # Get the logged-in barber
+            barber = Barber.objects.get(user=request.user)
 
-class GetServiceDataView(View):
-    def get(self, request):
-        service_id = request.GET.get('service_id')
-        service = get_object_or_404(Service, id=service_id)
-        data = {'title': service.title, 'price': service.price}
-        return JsonResponse(data)
+            # Set the barber field for the service instance
+            service = form.save(commit=False)
+            service.barber = barber
+            service.save()
+
+            return redirect('manage_services')
+
+        return render(request, self.template_name, {'form': form})
+    
 
 class DeleteServiceView(View):
-    def post(self, request):
-        service_id = request.POST.get('service_id')
-        service = get_object_or_404(Service, id=service_id)
-        service.delete()
-        return JsonResponse({'status': 'success', 'message': 'Service deleted successfully'})
-
-class GetServicesListView(View):
-    def get(self, request):
-        services = Service.objects.all()
-        return render(request, 'Barber/services_list.html', {'services': services})
-    
+    def post(self, request, service_id):
+        service_to_delete = get_object_or_404(Service, pk=service_id)
+        service_to_delete.delete()
+        return HttpResponseRedirect(reverse_lazy('manage_services'))

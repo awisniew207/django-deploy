@@ -46,7 +46,8 @@
                 <h1 class="title">Edit Your Profile</h1>
             </div>
             <div class="column has-text-right">
-                <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
+                <a href="{% url 'index' %}" class="button is-light">Home</a> 
+                <a href="{% url 'user_profile_redirect'  %}" class="button is-light">Profile</a>
             </div>
         </div>
     </section>
@@ -75,7 +76,7 @@
                         <a href="{% url 'update_working_hours' %}" class="button is-link">Edit Working Hours</a>
                         </div>
                         <div class="field">
-                        <button class="button is-link" onclick="window.location.href='{% url 'manage_services' %}'">Manage Services</button>
+                        <a class="button is-link" href="{% url 'manage_services' %}">Manage Services</a>
                         </div>
                     </div>
                 </div>

@@ -190,6 +190,13 @@ class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
         fields = ['title', 'description', 'price', 'duration']
-        # Add widgets or customize fields as required
 
+    def clean_duration(self):
+        # Convert the duration to the desired format (in minutes)
+        duration = self.cleaned_data.get('duration')
+        return duration  # Keep it in minutes
 
+    def save(self, commit=True):
+        # Convert the duration to seconds before saving to the database
+        self.instance.duration = self.cleaned_data.get('duration') * 60
+        return super().save(commit)

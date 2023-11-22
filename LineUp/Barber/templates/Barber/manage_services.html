@@ -1,51 +1,33 @@
-{% load static %}
+{% block content %}
+    <section class="section">
+        <div class="container">
+            <h2 class="title">Manage Services</h2>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barber Services Page</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    <style>
-        body {
-            font-family: "Garamond", serif;
-            background-color: white; /* Set the background color to white */
-            color: #333; /* Set the text color to #333 */
-        }
+            <!-- Service Form -->
+            <form method="post" action="{% url 'manage_services' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" name="save" class="button is-primary">Save</button>
+            </form>
 
-        .hero.is-danger, .has-background-primary {
-            background-color: #333; /* Change the background color to #333 */
-            color: white; /* Set text color to white for contrast */
-        }
-
-        .card {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add some shadow for better visibility */
-        }
-
-        .button.is-primary {
-            background-color: #333; /* Set button color */
-            border-color: #333;
-        }
-
-        .button.is-primary:hover {
-            background-color: #555; /* Darker shade for hover effect */
-        }
-    </style>
-</head>
-<body>
-    <section class="hero is-danger">
-        <div class="hero-body">
-            <div class="container">
-                <div class="columns is-vcentered">
-                    <div class="column">
-                        <h1 class="title">Services</h1>
-                    </div>
-                    <div class="column has-text-right">
-                        <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
-                    </div>
-                </div>
-            </div>
+            <!-- List of Existing Services -->
+            {% if services %}
+            <h3 class="subtitle">Existing Services</h3>
+            <ul>
+                {% for service in services %}
+                    <li>
+                        {{ service.title }} - {{ service.price }}
+                        <a href="{% url 'edit_service' service.id %}">Edit</a>
+                        <form method="post" action="{% url 'delete_service' service.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-link">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No services available.</p>
+        {% endif %}
         </div>
     </section>
-</html>
+{% endblock %}
