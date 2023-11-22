@@ -1,10 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.shortcuts import HttpResponse
 from django.core.exceptions import *
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.db.utils import IntegrityError
-from django.db.models import Q
 from django.views.generic.edit import CreateView, UpdateView
 from .forms import *
 from django.contrib.auth import login

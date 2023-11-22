@@ -3,13 +3,13 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from autoslug import AutoSlugField
 from django.utils.text import slugify
-from django.core.validators import MaxValueValidator, MinValueValidator
 User = settings.AUTH_USER_MODEL
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta, datetime, time
 from django.db.models import TimeField
+from django.urls import reverse
 
 class User(AbstractUser):    
     is_customer = models.BooleanField(default=False)
@@ -29,9 +29,9 @@ class User(AbstractUser):
         return slugify(f'{self.username}')
 
     def get_absolute_url(self):
-        if user.is_customer:
+        if self.user.is_customer:
             return reverse("customerProfileView", kwargs={"slug": self.slug})
-        if user.is_barber:
+        if self.user.is_barber:
             return reverse("barberProfileView", kwargs={"slug": self.slug})
 
 class Customer(models.Model):

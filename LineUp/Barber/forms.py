@@ -3,7 +3,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.db import transaction
 from .models import User, Customer, Barber, Review, Shop, Owner, Service
-from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
     
 
