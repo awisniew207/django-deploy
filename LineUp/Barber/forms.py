@@ -71,7 +71,7 @@ class CustomerProfileForm(forms.ModelForm):
             user.save()
         return user
 
-#-------------------------------------------------------------------------------
+
 class BarberSignUpForm(UserCreationForm):
     # Add first_name and last_name fields
     first_name = forms.CharField(max_length=30, required=True)
@@ -136,7 +136,7 @@ class BarberWorkingHoursForm(forms.ModelForm):
     class Meta:
         model = Barber
         fields = ['work_start_time', 'work_end_time']
-#----------------------------------------------------------------------------------------
+
 
 class OwnerSignUpForm(UserCreationForm):
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])

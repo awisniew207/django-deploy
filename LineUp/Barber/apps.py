@@ -7,7 +7,7 @@ class BarberConfig(AppConfig):
     def ready(self):
         import Barber.models
 
+
 class CustomerConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'Customer'
-
