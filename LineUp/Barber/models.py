@@ -157,6 +157,10 @@ class TimeSlot(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     is_booked = models.BooleanField(default=False)
+    booked_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='booked_appointments')
+
+    def __str__(self):
+        return f"timeslot: {self.start_time} to {self.end_time}"
 
 class Appointment(models.Model):
     timeslot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
@@ -179,7 +183,7 @@ def create_timeslots_for_barber(sender, instance, created, **kwargs):
                 TimeSlot.objects.get_or_create(barber=instance, start_time=current_time, end_time=timeslot_end)
                 current_time = timeslot_end
 '''
-
+'''
 def create_or_update_timeslots_for_barber(barber_instance):
     # Clear existing future timeslots for the barber
     TimeSlot.objects.filter(barber=barber_instance, start_time__gt=timezone.now()).delete()
@@ -196,7 +200,20 @@ def create_or_update_timeslots_for_barber(barber_instance):
             start_time = timezone.make_aware(datetime.combine(day, time(hour, 0)))
             end_time = start_time + timedelta(hours=1)  # 1-hour duration
             TimeSlot.objects.create(barber=barber_instance, start_time=start_time, end_time=end_time)
+'''
+def create_or_update_timeslots_for_barber(barber_instance):
+    # Define the range of dates to generate timeslots for
+    start_date = timezone.now().date()
+    end_date = start_date + timedelta(days=7)
 
+    # Loop over each day in the range
+    for single_date in (start_date + timedelta(n) for n in range(7)):
+        for hour in range(barber_instance.work_start_time.hour, barber_instance.work_end_time.hour):
+            start_time = timezone.make_aware(datetime.combine(single_date, time(hour, 0)))
+            end_time = start_time + timedelta(hours=1)  # 1-hour duration
+
+            # Create the timeslot if it does not already exist
+            TimeSlot.objects.get_or_create(barber=barber_instance, start_time=start_time, end_time=end_time)
 
 
 class Service(models.Model):

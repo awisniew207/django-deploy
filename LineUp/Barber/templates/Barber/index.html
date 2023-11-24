@@ -49,6 +49,8 @@
             <div class="user-info">Welcome, {{ user.username }}
                 <div class="block-display">
                     <a href="{% url 'user_profile_redirect'  %}" class="button">Profile</a>
+                    <a href="{% url 'inbox' %}" class="button">Inbox</a>
+                    <a href="{% url 'barber_appointments_view' %}" class="button">View Appointments</a>
                     <a href="{% url 'custom_logout' %}" class="button">Logout</a>
                 </div>            
             {% endif %}

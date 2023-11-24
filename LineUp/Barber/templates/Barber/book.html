@@ -15,6 +15,8 @@
         background-color: grey;
         color: white;
         cursor: not-allowed;
+        opacity: 0.5;  /* Slightly fade the timeslot to indicate it's not available */
+        pointer-events: none;  /* Prevent any mouse events on this element */
     }
     </style>
 </head>
@@ -57,7 +59,12 @@
                 var dayString = startTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 slotDiv.innerText = dayString + ' ' + startTime.toLocaleTimeString() + ' - ' + endTime.toLocaleTimeString();
 
-                slotDiv.onclick = function() { bookTime(timeslot.pk); };
+                if (!timeslot.fields.is_booked) {
+                    slotDiv.onclick = function() { bookTime(timeslot.pk); };
+                } else {
+                    slotDiv.classList.add('taken');
+                }
+
                 timeslotsDiv.appendChild(slotDiv);
             });
 
@@ -65,24 +72,34 @@
         }
 
         function bookTime(timeslotId) {
+            const timeslotElement = document.querySelector('.time-slot[data-id="' + timeslotId + '"]');
+            
+            // Add a class to show it's being processed (you can style this class as you like)
+            timeslotElement.classList.add('processing');
+
             fetch("{% url 'book_timeslot' %}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': getCookie('csrftoken') // Function to get CSRF token from cookies
+                    'X-CSRFToken': getCookie('csrftoken')
                 },
                 body: 'timeslot_id=' + timeslotId
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                console.log(data);
                 if (data.status === 'success') {
-                    // Update the UI to reflect the booked timeslot
-                    document.querySelector('.time-slot[data-id="' + timeslotId + '"]').classList.add('taken');
+                    // Redirect to the success page URL provided by the backend
+                    window.location.href = data.redirect_url;
+                } else {
+                    // Handle other responses (e.g., timeslot already booked)
+                    alert(data.message);
+                    timeslotElement.classList.remove('processing');
                 }
             })
             .catch((error) => {
                 console.error('Error:', error);
+                timeslotElement.classList.remove('processing');
             });
         }
 

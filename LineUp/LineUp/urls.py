@@ -45,6 +45,9 @@ urlpatterns = [
     path('book/', views.book_view, name='book'),
     path('book-timeslot/', views.book_timeslot, name='book_timeslot'),
     path('update-working-hours/', views.update_working_hours, name='update_working_hours'),
+    path('booking-success/', views.booking_success, name='booking_success'),
+    path('inbox/', views.inbox_view, name='inbox'),
+    path('barber-appointments/', views.barber_appointments_view, name='barber_appointments_view'),
 ]
 
 if settings.DEBUG:

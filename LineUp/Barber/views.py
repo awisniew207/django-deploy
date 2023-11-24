@@ -24,7 +24,14 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import pytz
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
+from django.shortcuts import render
+from .models import TimeSlot
+from django.utils import timezone
 
 class CustomerSignUpView(CreateView):
     model = Customer
@@ -277,9 +284,29 @@ def book_view(request):
 @csrf_exempt
 def book_timeslot(request):
     if request.method == 'POST':
-        # Extract timeslot ID from request and implement booking logic
-        # ...
-        return JsonResponse({'status': 'success', 'message': 'Timeslot booked successfully.'})
+        timeslot_id = request.POST.get('timeslot_id')
+        try:
+            timeslot = TimeSlot.objects.get(pk=timeslot_id)
+            if not timeslot.is_booked:
+                timeslot.is_booked = True
+                timeslot.booked_by = request.user
+                timeslot.save()
+
+                # Notify the barber via email (example)
+                send_mail(
+                    'New Appointment Booking',
+                    f'You have a new appointment booked for {timeslot.start_time}.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [timeslot.barber.user.email],
+                    fail_silently=False,
+                )
+
+                success_url = reverse('booking_success')  # 'booking_success' is the name of your success page URL
+                return JsonResponse({'status': 'success', 'redirect_url': success_url})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'This timeslot is already booked.'}, status=400)
+        except TimeSlot.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Invalid timeslot ID.'}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
@@ -379,4 +406,24 @@ class OwnerUpdateProfile(UpdateView):
     def get_success_url(self):
         # Redirect to the barber's profile page after successful update
         return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
-        
+
+
+def booking_success(request):
+    return render(request, 'Barber/booking_success.html')       
+
+
+def inbox_view(request):
+    upcoming_appointments = TimeSlot.objects.filter(booked_by=request.user, start_time__gte=timezone.now()).order_by('start_time')
+    print("Upcoming Appointments:", upcoming_appointments)
+    for appointment in upcoming_appointments:
+        print("Appointment:", appointment, "Barber:", appointment.barber.user.get_full_name(), "Start Time:", appointment.start_time)
+    
+    return render(request, 'Barber/inbox.html', {'upcoming_appointments': upcoming_appointments})
+
+def barber_appointments_view(request):
+    if not request.user.is_authenticated or not hasattr(request.user, 'barber'):
+        return redirect('some_login_or_error_page')
+
+    upcoming_appointments = TimeSlot.objects.filter(barber=request.user.barber, start_time__gte=timezone.now()).order_by('start_time')
+    print("Barber's Upcoming Appointments:", upcoming_appointments)  # Debugging statement
+    return render(request, 'Barber/barber_appointments.html', {'upcoming_appointments': upcoming_appointments})
