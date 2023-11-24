@@ -48,7 +48,11 @@ urlpatterns = [
     path('booking-success/', views.booking_success, name='booking_success'),
     path('inbox/', views.inbox_view, name='inbox'),
     path('barber-appointments/', views.barber_appointments_view, name='barber_appointments_view'),
+    path('manage_services/', views.ManageServicesView.as_view(), name='manage_services'),
+    path('edit_service/<int:service_id>/', views.ManageServicesView.as_view(), name='edit_service'),
+    path('manage_services/<int:service_id>/delete/', views.DeleteServiceView.as_view(), name='delete_service'),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    

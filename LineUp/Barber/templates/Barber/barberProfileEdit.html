@@ -46,7 +46,8 @@
                 <h1 class="title">Edit Your Profile</h1>
             </div>
             <div class="column has-text-right">
-                <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
+                <a href="{% url 'index' %}" class="button is-light">Home</a> 
+                <a href="{% url 'user_profile_redirect'  %}" class="button is-light">Profile</a>
             </div>
         </div>
     </section>
@@ -70,6 +71,12 @@
                                     <span class="file-label">Choose a file…</span>
                                 </span>
                             </label>
+                        </div>
+                        <div class="field">
+                        <a href="{% url 'update_working_hours' %}" class="button is-link">Edit Working Hours</a>
+                        </div>
+                        <div class="field">
+                        <a class="button is-link" href="{% url 'manage_services' %}">Manage Services</a>
                         </div>
                     </div>
                 </div>
@@ -95,63 +102,10 @@
                     <div class="field">
                         <div class="control">
                             <button class="button is-primary" type="submit">Save</button>
-                        </div>
-                    </div>
-                    <div class="service-list">
-                        <label class="label">Existing Services</label>
-                        <ul>
-                            {% for service in existing_services %}
-                                <li>
-                                    {{ service.title }} - {{ service.description }} - Duration: {{ service.duration }} - Price: {{ service.price }}
-                                    <!-- Add buttons/links for editing/deleting services -->
-                                    <a href="{% url 'edit_service' service.id %}">Edit</a> | 
-                                    <a href="{% url 'delete_service' service.id %}">Delete</a>
-                                </li>
-                            {% empty %}
-                                <li>No services found.</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="add-service">
-                        <form method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="field">
-                                <label class="label" for="title">Title</label>
-                                <div class="control">
-                                    <input class="input" type="text" id="service-title" name="title" value="{% if service_form.title.value %}{{ service_form.title.value }}{% endif %}" >
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label" for="description">Description</label>
-                                <div class="control">
-                                    <textarea class="textarea" id="service-description" name="description" r>{% if service_form.description.value %}{{ service_form.description.value }}{% endif %}</textarea>
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label" for="price">Price</label>
-                                <div class="control">
-                                    <input class="input" type="number" id="price" name="price" value="{{ service_form.price.value }}">
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label" for="duration">Duration (in minutes)</label>
-                                <div class="control">
-                                    <input class="input" type="number" id="duration" name="duration" value="{{ service_form.duration.value }}">
-                                </div>
-                            </div>
-                            <div class="field">
-                                <div class="control">
-                                    <button class="button is-primary" type="submit">Add Service</button>
-                                </div>
-                        </form>
-                    </div>                
+                        </div>       
                 </div>
             </div>
         </form>
-    </div>
-    <div class="field">
-        <a href="{% url 'update_working_hours' %}" class="button is-link">Edit Working Hours</a>
-    </div>
 
     <script>
         document.getElementById("profile_pic").addEventListener("change", function () {
