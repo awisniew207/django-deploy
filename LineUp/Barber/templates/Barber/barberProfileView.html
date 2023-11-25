@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barber Profile Page</title>
+    <title>{{ barber.user.username }}'s Profile Page</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <style>
         body {
@@ -23,13 +23,31 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add some shadow for better visibility */
         }
 
-        .button.is-primary {
+        .button {
             background-color: #333; /* Set button color */
             border-color: #333;
+            color: white; /* Set text color for buttons */
         }
 
-        .button.is-primary:hover {
+        .button:hover {
             background-color: #555; /* Darker shade for hover effect */
+        }
+
+        /* Additional styling for profile picture and action buttons */
+        .profile-actions {
+            display: flex;
+            gap: 10px; /* Space between buttons */
+            margin-top: 10px;
+        }
+
+        .button.is-primary.visit-shop {
+            background-color: black; /* Override to black */
+            border-color: black;
+            color: white;
+        }
+
+        .button.is-primary.visit-shop:hover {
+            background-color: #222; /* Slightly lighter black for hover */
         }
     </style>
 </head>
@@ -39,10 +57,10 @@
             <div class="container">
                 <div class="columns is-vcentered">
                     <div class="column">
-                        <h1 class="title">Profile</h1>
+                        <h1 class="title">{{ barber.user.username }}'s Profile</h1>
                     </div>
                     <div class="column has-text-right">
-                        <a href="{% url 'index' %}" class="button is-light">Home</a> <!-- Home Button -->
+                        <a href="{% url 'index' %}" class="button">Home</a> <!-- Home Button -->
                     </div>
                 </div>
             </div>
@@ -56,83 +74,93 @@
                 <div class="profile-picture">
                     <img src="{% if barber.user.profile_pic %}{{ barber.user.profile_pic.url }}{% else %}default-profile.jpg{% endif %}" alt="Profile Picture">
                 </div>
-                <!-- Full Name as Subheading -->
                 <h2 class="title is-4">{{ barber.user.get_full_name }}</h2>
-                <!-- Display Phone Number -->
                 <p><strong>Phone Number: </strong>{{ barber.user.phone_num }}</p>
-                <p>Book your appointment today!</p>
-                <form action="">
-                    <button type="submit" class="button is-link">Book</button>
-                </form>
+                <!-- Action Buttons -->
+                <div class="profile-actions">
+                    <form action="">
+                        <button type="submit" class="button">Book</button>
+                    </form>
+                    {% if not is_own_profile %}
+                        <form action="{% url 'write_review' barber.user.slug %}" method="get">
+                            <button type="submit" class="button">Write a Review</button>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
             <div class="column">
                 <!-- Services Section -->
-                <div class="services-section">
+                <div class="services-section" style="margin-bottom: 30px;">
                     <h2 class="title is-4">Services</h2>
-                    <!-- Include Services Here -->
+                    {% for service in barber.barber_services.all %}
+                        <div class="box">
+                            <p><strong>{{ service.title }}</strong></p>
+                            <p>{{ service.description }}</p>
+                            <p>Duration: {{ service.duration }}</p>
+                            <p>Price: ${{ service.price }}</p>
+                        </div>
+                    {% empty %}
+                        <p>No services listed.</p>
+                    {% endfor %}
                 </div>
 
-                <div class="reviews-section">
-                    <!-- ... Display reviews using 'reviews' as before ... -->
-                    <div class="reviews-section">
-                        <h2 class="title is-4">Customer Reviews</h2>
-                        {% for review in reviews|slice:":3" %}
-                            <div class="box">
-                                <article class="media">
-                                    <div class="media-left">
-                                        <figure class="image is-64x64">
-                                            <img src="{{ review.customer.profile_pic.url }}" alt="Customer Profile Picture">
-                                        </figure>
+                <!-- Reviews Section -->
+                <div class="reviews-section" style="margin-bottom: 30px;">
+                    <h2 class="title is-4">Customer Reviews</h2>
+                    {% for review in reviews|slice:":3" %}
+                        <div class="box">
+                            <article class="media">
+                                <div class="media-left">
+                                    <figure class="image is-64x64">
+                                        <img src="{{ review.customer.profile_pic.url }}" alt="Customer Profile Picture">
+                                    </figure>
+                                </div>
+                                <div class="media-content">
+                                    <div class="content">
+                                        <p>
+                                            <strong>Review by {{ review.customer.username }}</strong>
+                                            <br>
+                                            Rating: {{ review.rating }}/5
+                                            <br>
+                                            {{ review.content }}
+                                            <br>
+                                            <small>Date: {{ review.created_at|date:"M d, Y" }}</small>
+                                        </p>
                                     </div>
-                                    <div class="media-content">
-                                        <div class="content">
-                                            <p>
-                                                <strong>Review by {{ review.customer.username }}</strong>
-                                                <br>
-                                                Rating: {{ review.rating }}/5
-                                                <br>
-                                                {{ review.content }}
-                                                <br>
-                                                <small>Date: {{ review.created_at|date:"M d, Y" }}</small>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
-                        {% empty %}
-                            <p>No reviews yet.</p>
-                        {% endfor %}
+                                </div>
+                            </article>
+                        </div>
+                    {% empty %}
+                        <p>No reviews yet.</p>
+                    {% endfor %}
                     
-                        <!-- Show More Link -->
-                        {% if reviews|length > 3 %}
-                            <a href="{% url 'barberProfileViewMore' slug=barber.slug %}" class="button is-primary">Show More Reviews</a>
-                        {% endif %}
-                    </div>    
-                    <!-- Pagination Links -->
-                    <nav class="pagination" role="navigation" aria-label="pagination">
-                        {% if reviews.has_previous %}
-                            <a class="pagination-previous" href="?page={{ reviews.previous_page_number }}">Previous</a>
-                        {% endif %}
-                        {% if reviews.has_next %}
-                            <a class="pagination-next" href="?page={{ reviews.next_page_number }}">Next</a>
-                        {% endif %}
-                    </nav>
-                </div>        
-                
-                <!-- Review Button for non-barbers -->
-            {% if not is_own_profile %}
-                <form action="{% url 'write_review' barber.user.slug %}" method="get">
-                    <button type="submit" class="button is-link">Write a Review</button>
-                </form>
-            {% endif %}
-            
-            </div>
-        </div>
+                    <!-- Show More Link -->
+                    {% if reviews|length > 3 %}
+                        <a href="{% url 'barberProfileViewMore' slug=barber.slug %}" class="button is-primary">Show More Reviews</a>
+                    {% endif %}
+                </div>    
 
-    <div class="column">
+                <!-- Affiliated Shop Section -->
+                <div class="affiliated-shop-section">
+                    <h2 class="title is-4">Affiliated Shop</h2>
+                    {% if barber.shops.exists %}
+                        {% for shop in barber.shops.all %}
+                            <div class="box">
+                                <h3 class="title is-5">{{ shop.name }}</h3>
+                                <p><strong>Address:</strong> {{ shop.address }}</p>
+                                <p>{{ shop.description }}</p>
+                                <!-- Add 'visit-shop' class to apply specific black style -->
+                                <a href="{% url 'shop_detail' slug=shop.slug %}" class="button is-primary visit-shop">Visit Shop</a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>This barber is independent and not affiliated with a shop.</p>
+                    {% endif %}
+                </div>
+
         {% if is_own_profile %}
             <footer class="has-background-white has-text-black">
-                <a href="{% url 'barberEditProfileView' slug=barber.user.slug %}" class="button is-primary">Edit Profile</a>
+                <a href="{% url 'barberEditProfileView' slug=barber.user.slug %}" class="button">Edit Profile</a>
             </footer>
         {% endif %}
     </div>

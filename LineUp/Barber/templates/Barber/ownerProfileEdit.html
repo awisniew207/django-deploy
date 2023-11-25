@@ -1,23 +1,147 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Edit Owner Profile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Profile Update</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    <!-- Add your existing styles here -->
+    <style>
+        body {
+            font-family: "Garamond", serif;
+            background-color: white;
+            color: #333;
+        }
+        .hero.is-danger, .has-background-primary {
+            background-color: #333;
+            color: white;
+        }
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .button.is-primary {
+            background-color: #333;
+            border-color: #333;
+        }
+        .button.is-primary:hover {
+            background-color: #555;
+        }
+        .shop-edit-form {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <!-- ... -->
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">Edit Owner Profile</h1>
+            </div>
+        </div>
+    </section>
 
     <div class="container mt-4">
-        <h1 class="title">Edit Profile</h1>
-        <form method="post">
+        <form id="profile-form" enctype="multipart/form-data" method="post" action="">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="button is-primary">Save Changes</button>
+            <div class="columns">
+                <!-- Profile Picture -->
+                <div class="column is-one-third">
+                    <div class="profile-picture">
+                        <img src="{{ user.profile_pic.url }}" alt="Owner's Profile Picture">
+                        <div class="file is-centered is-boxed">
+                            <label class="file-label">
+                                <input class="file-input" type="file" id="profile_pic" name="profile_pic" accept="image/*">
+                                <span class="file-cta">
+                                    <span class="file-icon">
+                                        <i class="fas fa-upload"></i>
+                                    </span>
+                                    <span class="file-label">Choose a file…</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Owner Information -->
+                <div class="column">
+                    <!-- Name Fields -->
+                    <div class="field">
+                        <label class="label" for="first-name">First Name</label>
+                        <div class="control">
+                            <input class="input" type="text" id="first-name" name="first_name" value="{{ owner.user.first_name }}" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="last-name">Last Name</label>
+                        <div class="control">
+                            <input class="input" type="text" id="last-name" name="last_name" value="{{ owner.user.last_name }}" required>
+                        </div>
+                    </div>
+                    <!-- Phone Number -->
+                    <div class="field">
+                        <label class="label" for="phone-number">Phone Number</label>
+                        <div class="control">
+                            <input class="input" type="tel" id="phone-number" name="phone_num" value="{{ owner.user.phone_num }}" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+                </div>
+                {% for shop in owner_shops %}
+                <div class="shop-edit-form">
+                    <h3 class="title is-5">Edit Shop: {{ shop.name }}</h3>
+                    <input type="hidden" name="shop_id" value="{{ shop.id }}">
+                    <div class="field">
+                        <label class="label" for="name_{{ shop.id }}">Shop Name</label>
+                        <div class="control">
+                            <input class="input" type="text" id="name_{{ shop.id }}" name="name_{{ shop.id }}" value="{{ shop.name }}" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="address_{{ shop.id }}">Address</label>
+                        <div class="control">
+                            <input class="input" type="text" id="address_{{ shop.id }}" name="address_{{ shop.id }}" value="{{ shop.address }}" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="description_{{ shop.id }}">Description</label>
+                        <div class="control">
+                            <textarea class="textarea" id="description_{{ shop.id }}" name="description_{{ shop.id }}">{{ shop.description }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="field">
+                <div class="control">
+                    <button class="button is-primary" type="submit">Save Changes</button>
+                </div>
+            </div>
         </form>
-    </div>
+        <!-- Button to Redirect to Shop Registration -->
+        <div class="field">
+            <div class="control">
+                <a href="{% url 'shopRegistration' %}" class="button is-link">Register New Shop</a>
+            </div>
+        </div>
+    </div>    
+
+    <script>
+        document.getElementById("profile_pic").addEventListener("change", function () {
+            var input = this;
+            var img = document.querySelector(".profile-picture img");
+
+            if (input.files && input.files[0]) {
+                var reader = a new FileReader();
+
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+    </script>
 </body>
 </html>

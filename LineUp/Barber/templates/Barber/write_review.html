@@ -3,37 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Write Review</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <title>Write Review for {{ barber.user.username }}</title>
     <style>
         .navbar {
-            background-color: black;
+            background-color: #333; /* Dark grey background */
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .navbar-item, .navbar-burger {
+        .navbar-brand {
+            font-size: 24px;
             color: white;
         }
-        .review-form {
-            margin-top: 20px;
+        .navbar-end {
+            display: flex;
+        }
+        .button.is-black, .button.is-black:hover {
+            background-color: black;
+            color: white;
+            border: none;
+            margin-left: 10px;
+        }
+        .button.is-light, .button.is-light:hover {
+            background-color: white;
+            color: #333;
+            border: none;
         }
     </style>
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
-        <div class="container">
-            <div class="navbar-brand">
-                <span class="navbar-item">Review</span>
-                <span class="navbar-burger burger" data-target="navbarMenu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
-            </div>
-            <div id="navbarMenu" class="navbar-menu">
-                <div class="navbar-end">
-                    <a class="navbar-item" href="{% url 'barberProfileView' slug=barber.user.slug %}">Back to Profile</a>
-                </div>
-            </div>
+        <div class="navbar-brand">Write a Review</div>
+        <div class="navbar-end">
+            <a class="button is-light" href="{% url 'barberProfileView' slug=barber.user.slug %}">Return to Barber's Page</a>
+            <a class="button is-light" href="{% url 'index' %}">Home</a>
         </div>
     </nav>
 
@@ -44,19 +50,20 @@
             
             <form method="post">
                 {% csrf_token %}
-                <!-- Render form fields individually -->
                 {% for field in form %}
-                    {% if field.name == 'content' %}
-                        <h2 class="subtitle">Content</h2>
-                        <p>{{ field }}</p> <!-- Render only the field without its label -->
-                    {% else %}
-                        <p>{{ field.label_tag }} {{ field }}</p>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <p class="help is-danger">{{ error }}</p>
-                    {% endfor %}
+                    <div class="field">
+                        <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <p class="help is-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
                 {% endfor %}
-                <button class="button is-primary" type="submit">Submit Review</button>
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-black" type="submit">Submit Review</button>
+                    </div>
+                </div>
             </form>
         </div>
     </section>

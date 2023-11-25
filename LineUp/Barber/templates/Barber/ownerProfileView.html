@@ -56,27 +56,35 @@
                 </div>
                 <h2 class="title is-4">{{ owner.user.get_full_name }}</h2>
                 <p><strong>Phone Number: </strong>{{ owner.user.phone_num }}</p>
+            </div>
 
-                <!-- Shop Information -->
-                {% if owner.owned_shop %}
-                    <h3 class="title is-5">Shop: {{ owner.owned_shop.name }}</h3>
-                    <p><strong>Address: </strong>{{ owner.owned_shop.address }}</p>
-                    <p>{{ owner.owned_shop.description }}</p>
+            <div class="column">
+                {% if owner_shops %}
+                    <h3 class="title is-5">Owned Shops</h3>
+                    {% for shop in owner_shops %}
+                        <div class="box">
+                            <h4><a href="{% url 'shop_detail' slug=shop.slug %}">{{ shop.name }}</a></h4>
+                            <p><strong>Address:</strong> {{ shop.address }}</p>
+                            <p>{{ shop.description }}</p>
+                            <!-- Displaying Affiliation Code Only for the Logged-In Owner -->
+                            {% if is_own_profile %}
+                                <p><strong>Affiliation Code:</strong> {{ shop.affiliation_code }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                 {% else %}
-                    <p>No shop registered yet.</p>
+                    <p>No shops registered yet.</p>
+                    <!-- Link to Register a New Shop -->
+                    <a href="{% url 'shopRegistration' %}" class="button is-primary">Register a New Shop</a>
                 {% endif %}
             </div>
-            <div class="column">
-                <!-- Additional Content (if needed) -->
-            </div>
-        </div>
 
         <div class="column">
             {% if is_own_profile %}
-            <footer class="has-background-white has-text-black">
-                <a href="{% url 'ownerEditProfileView' slug=owner.user.slug %}" class="button is-primary">Edit Profile</a>
-            </footer>
-        {% endif %}
+                <footer class="has-background-white has-text-black">
+                    <a href="{% url 'ownerEditProfileView' slug=owner.user.slug %}" class="button is-primary">Edit Profile</a>
+                </footer>
+            {% endif %}
         </div>
     </div>
 </body>

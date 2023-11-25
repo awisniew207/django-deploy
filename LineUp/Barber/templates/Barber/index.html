@@ -10,75 +10,88 @@
     <style>
         body {
             font-family: "Garamond", serif;
-            background-color: white; /* Set the background color to white */
-            color: #333; /* Set the text color to #333 */
+            background-color: white;
+            color: #333;
         }
 
         .hero.is-danger, .has-background-primary {
-            background-color: #333; /* Change the background color to #333 */
-            color: white; /* Set text color to white for contrast */
+            background-color: #333;
+            color: white;
         }
 
         .card {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add some shadow for better visibility */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .button.is-primary {
-            background-color: #333; /* Set button color */
+            background-color: #333;
             border-color: #333;
         }
 
         .button.is-primary:hover {
-            background-color: #555; /* Darker shade for hover effect */
+            background-color: #555;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            width: 25%;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .content {
+            width: 75%;
+            padding: 10px;
+        }
+
+        .list-item {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .list-item:hover {
+            background-color: #f5f5f5;
         }
     </style>
 </head>
 <body>
-    <section class="hero is-danger">
-        <div class="hero-body">
-            <h1><center>Welcome to *Shop Name*</center></h1>
+    <nav class="navbar" style="background-color: #333; color: white; padding: 10px 0;">
+        <div class="container">
+            <h1 class="title has-text-white">LineUp</h1>
             {% if user.is_authenticated %}
-            <div class="user-info">Welcome, {{ user.username }}
-                <div class="block-display">
-                    <a href="{% url 'user_profile_redirect'  %}" class="button">Profile</a>
+                <div>Welcome, {{ user.username }}</div>
+                <div>
+                    <a href="{% url 'user_profile_redirect' %}" class="button">Profile</a>
                     <a href="{% url 'custom_logout' %}" class="button">Logout</a>
-                </div>            
+                </div>
             {% endif %}
-            </div>
         </div>
-    </section>
-    
-    <section id="home">
-        <h2>Quality Haircuts & Designs</h2>
-        <p>Book your appointment today!</p>
-        <a href="{% url 'book' %}" class="button">Book Now</a>
-    </section>
-    
-    <section id="about">
-        <h2>About Us</h2>
-        <p>LineUp is a new experience for barbers, companies, and clientele to connect</p>
-    </section>
-    
-    <section id="services">
-        <h2>Services & Pricing</h2>
-        <ul>
-            <li>Haircut & Design - $490</li>
-            <li>Beard Trim - $375</li>
-            <li>Fade - $450</li>
-        </ul>
-    </section>
-    
-    <section id="reviews">
-        <h2>Customer Reviews</h2>
-        <!-- Insert customer reviews here -->
-        <p>They gave me the boosie fade, recommend this place</p>
-    </section>
-    
-    <section id="contact">
-        <h2>Contact Us</h2>
-        <p>Give us a call at 111-111-1111</p>
-    </section>
-    
+    </nav>
+
+    <section id="random-barbers">
+        <h2>Featured Barbers</h2>
+        <div>
+            {% for barber in random_barbers %}
+            <div class="barber" style="display: flex; align-items: center; margin-bottom: 15px;">
+                <!-- Barber's Profile Picture -->
+                <img src="{% if barber.user.profile_pic %}{{ barber.user.profile_pic.url }}{% else %}path/to/default/image.jpg{% endif %}" 
+                     alt="Profile Picture of {{ barber.user.username }}" 
+                     style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+        
+                <!-- Barber's Username and Rating -->
+                <div>
+                    <h3><a href="{% url 'barberProfileView' slug=barber.user.slug %}" style="text-decoration: none; color: inherit;">{{ barber.user.username }}</a></h3>
+                    <p>Average Rating: {{ barber.average_rating|floatformat:2 }}/5</p>
+                </div>
+            </div>
+        {% empty %}
+            <p>No barbers found.</p>
+        {% endfor %}        
+        </div>
+    </section>    
+
     <footer>
         <p>&copy; 2023 LineUp</p>
     </footer>

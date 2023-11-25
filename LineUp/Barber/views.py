@@ -24,7 +24,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import pytz
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+import random
 
 class CustomerSignUpView(CreateView):
     model = Customer
@@ -215,8 +215,27 @@ class BarberUpdateProfile(UpdateView):
         return reverse_lazy('barberProfileView', kwargs={'slug': self.object.slug})
 
 def index_view(request):
-    # Your view logic here
-    return render(request, 'Barber/index.html')
+    all_barbers = list(Barber.objects.all())
+    all_shops = list(Shop.objects.all())
+
+    random_barbers = random.sample(all_barbers, min(len(all_barbers), 5))
+    random_shops = random.sample(all_shops, min(len(all_shops), 5))
+
+    context = {
+        'random_barbers': random_barbers,
+        'random_shops': random_shops,
+    }
+
+    return render(request, 'Barber/index.html', context)
+
+def search_barbers(request):
+    query = request.GET.get('query', '')
+    # Add your search logic here. For example, you can filter barbers based on the query
+    context = {
+        'barbers': Barbers.objects.filter(name__icontains=query)
+    }
+    return render(request, 'path/to/search_template.html', context)
+
 
 def redir_view(request):
     # Your view logic here
@@ -350,9 +369,9 @@ class OwnerProfileView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         owner = self.get_object()
-        # Add additional context if needed, e.g., owner's shop details
-        owner_shop = Shop.objects.filter(owner=self.object).first()
-        context['owner_shop'] = owner_shop
+        # Retrieve all shops associated with the owner
+        owner_shops = Shop.objects.filter(owner=owner)
+        context['owner_shops'] = owner_shops
         context['is_own_profile'] = self.request.user == owner.user
         return context
 
@@ -360,22 +379,52 @@ class OwnerUpdateProfile(UpdateView):
     model = User
     form_class = OwnerProfileForm
     template_name = 'Barber/ownerProfileEdit.html'
-    success_url = reverse_lazy('owner_profile')  # URL to redirect after successfully editing the profile
 
-    def form_valid(self, form):
-        shop_id = form.cleaned_data['shop']
-        if shop_id:
-            selected_shop = Shop.objects.get(id=shop_id)
-            self.object.owned_shop = selected_shop
-        else:
-            self.object.owned_shop = None
-        self.object.save()
-        return super().form_valid(form)
-    def get_object(self, queryset=None):
-        # Get the User instance for the logged-in barber
-        return get_object_or_404(User, username=self.request.user.username)
+    def get_object(self):
+        # Get the User instance for the logged-in owner
+        return get_object_or_404(User, username=self.request.user.username, is_owner=True)
 
     def get_success_url(self):
-        # Redirect to the barber's profile page after successful update
+        # Redirect to the owner's profile page after successful update
         return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
-        return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        owner = self.get_object().owner
+        context['owner_shops'] = Shop.objects.filter(owner=owner)
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        # Fetch all shop IDs from the form data
+        shop_ids = self.request.POST.getlist('shop_id')
+        for shop_id in shop_ids:
+            # Fetch each field's data for the specific shop
+            shop = Shop.objects.get(id=shop_id)
+            shop_name = self.request.POST.get(f'name_{shop_id}')
+            shop_address = self.request.POST.get(f'address_{shop_id}')
+            shop_description = self.request.POST.get(f'description_{shop_id}')
+
+            # Update the shop's details
+            shop.name = shop_name if shop_name else shop.name
+            shop.address = shop_address if shop_address else shop.address
+            shop.description = shop_description if shop_description else shop.description
+            shop.save()
+
+        return super().form_valid(form)
+
+class ShopDetailView(DetailView):
+    model = Shop
+    template_name = 'Barber/shop_detail.html'
+    context_object_name = 'shop'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        shop = self.get_object()
+        context['barbers'] = shop.barbers.all()
+        return context
+
+
+
+        

@@ -75,6 +75,7 @@ class CustomerProfileForm(forms.ModelForm):
 class BarberSignUpForm(UserCreationForm):
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
     email = forms.EmailField(label="Email")
+    affiliation_code = forms.CharField(label="Affiliation Code", max_length=10, required=False, help_text="Enter your shop's affiliation code if you have one.")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -85,7 +86,7 @@ class BarberSignUpForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('email',)
+        fields = UserCreationForm.Meta.fields + ('email', 'affiliation_code')
 
     @transaction.atomic
     def save(self):
@@ -98,6 +99,15 @@ class BarberSignUpForm(UserCreationForm):
         profile.first_name = self.cleaned_data.get('first_name', '')
         profile.last_name = self.cleaned_data.get('last_name', '')
         profile.save()
+
+        # If an affiliation code is provided, link the barber to the shop
+        affiliation_code = self.cleaned_data.get('affiliation_code')
+        if affiliation_code:
+            try:
+                shop = Shop.objects.get(affiliation_code=affiliation_code)
+                profile.shops.add(shop)
+            except Shop.DoesNotExist:
+                pass  # If the shop doesn't exist, ignore the code
 
         return user
 
@@ -167,33 +177,59 @@ class OwnerSignUpForm(UserCreationForm):
         return user
 
 class ShopRegistrationForm(forms.ModelForm):
+    email = forms.EmailField(required=True)
+    phone_number = forms.CharField(required=True, max_length=12)
+
     class Meta:
         model = Shop
-        fields = ['name', 'address', 'description']
+        fields = ['name', 'address', 'email', 'phone_number', 'description']
 
     def __init__(self, *args, **kwargs):
         super(ShopRegistrationForm, self).__init__(*args, **kwargs)
         # Customize your form initialization or add extra fields here if needed
 
 class OwnerProfileForm(forms.ModelForm):
-    shop_choices = [(shop.id, shop.name) for shop in Shop.objects.all()]
-    shop = forms.ChoiceField(choices=shop_choices, required=False)
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+    phone_num = forms.CharField(max_length=12, required=False)
+    # Add any additional owner-specific fields here
 
     class Meta:
-        model = Owner
-        fields = ['user', 'shop']
+        model = User
+        fields = ['profile_pic', 'first_name', 'last_name', 'phone_num']
+        # Include any additional fields in the 'fields' list
 
-    def __init__(self, *args, **kwargs):
-        super(OwnerProfileForm, self).__init__(*args, **kwargs)
-        # Ensure that instance is an Owner instance and not a User instance
-        if self.instance and hasattr(self.instance, 'owned_shop'):
-            # Assuming the Owner model has a relation to a Shop
-            self.fields['shop'].initial = self.instance.owned_shop.id if self.instance.owned_shop else None
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
+        user.phone_num = self.cleaned_data.get('phone_num')
 
+        if 'profile_pic' in self.changed_data:
+            user.profile_pic = self.cleaned_data.get('profile_pic')
+
+        # Handle any additional owner-specific fields here
+
+        if commit:
+            user.save()
+        return user
+        
 class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
         fields = ['title', 'description', 'price', 'duration']
         # Add widgets or customize fields as required
+
+    def save(self, barber, commit=True):
+        service = super().save(commit=False)
+        service.barber = barber  # Set the barber for the service
+        service.description = description
+        service.title = title
+        service.price = price
+        service.duration = duration
+        service.save()
+        
+        return service
+
 
 

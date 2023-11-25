@@ -1,19 +1,59 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Registration</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'Barber/styles.css' %}">
     <style>
-        .navbar {
-            background-color: black;
+        body {
+            font-family: "Garamond", serif;
+            background-color: white;
+            color: #333;
         }
-        .navbar-item, .navbar-burger {
+
+        .hero.is-danger, .has-background-primary {
+            background-color: #333;
             color: white;
         }
+
+        .button.is-primary {
+            background-color: #333;
+            border-color: #333;
+            color: white;
+        }
+
+        .button.is-primary:hover {
+            background-color: #555;
+            color: white;
+        }
+
         .form-container {
-            margin-top: 20px;
+            margin-top: 50px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .label {
+            color: #333;
+        }
+
+        .input, .textarea {
+            background-color: #eee;
+            border: 1px solid #ddd;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+        }
+
+        .navbar-item {
+            color: white;
         }
     </style>
 </head>
@@ -22,7 +62,7 @@
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <span class="navbar-item">Shop Registration</span>
+                <a href="{% url 'index' %}" class="navbar-item">Back to Home</a>
             </div>
         </div>
     </nav>
@@ -35,6 +75,7 @@
             <form method="post" action="{% url 'shopRegistration' %}">
                 {% csrf_token %}
                 
+                <!-- Shop Name -->
                 <div class="field">
                     <label class="label" for="name">Shop Name</label>
                     <div class="control">
@@ -42,6 +83,7 @@
                     </div>
                 </div>
 
+                <!-- Address -->
                 <div class="field">
                     <label class="label" for="address">Address</label>
                     <div class="control">
@@ -49,6 +91,23 @@
                     </div>
                 </div>
 
+                <!-- Email -->
+                <div class="field">
+                    <label class="label" for="email">Email</label>
+                    <div class="control">
+                        <input class="input" type="email" id="email" name="email" required>
+                    </div>
+                </div>
+                
+                <!-- Phone Number -->
+                <div class="field">
+                    <label class="label" for="phone_number">Phone Number</label>
+                    <div class="control">
+                        <input class="input" type="tel" id="phone_number" name="phone_number" required>
+                    </div>
+                </div>
+
+                <!-- Description -->
                 <div class="field">
                     <label class="label" for="description">Description</label>
                     <div class="control">
@@ -56,6 +115,7 @@
                     </div>
                 </div>
 
+                <!-- Submit Button -->
                 <div class="field">
                     <div class="control">
                         <button class="button is-primary" type="submit">Register Shop</button>
@@ -64,13 +124,13 @@
 
                 <!-- Display Form Errors -->
                 {% if form.errors %}
-                <div class="notification is-danger">
-                    <ul>
-                        {% for field, errors in form.errors.items %}
-                            <li>{{ field }}: {{ errors }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+                    <div class="notification is-danger">
+                        <ul>
+                            {% for field, errors in form.errors.items %}
+                                <li>{{ field }}: {{ errors }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endif %}
             </form>
         </div>

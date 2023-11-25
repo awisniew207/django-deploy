@@ -36,7 +36,7 @@ urlpatterns = [
     path('profile/owner/edit/<slug:slug>/', views.OwnerUpdateProfile.as_view(), name='ownerEditProfileView'),
     path('profile/', views.UserProfileRedirectView.as_view(), name='user_profile_redirect'),
     path("profile/customer/<slug:slug>", views.CustomerProfileView.as_view(), name="customerProfileView"),
-    path("profile/barber/<slug:slug>", views.BarberProfileView.as_view(), name="barberProfileView"),
+    path('profile/barber/<slug:slug>/', views.BarberProfileView.as_view(), name='barberProfileView'),
     path("profile/owner/<slug:slug>", views.OwnerProfileView.as_view(), name="ownerProfileView"),
     path('review/write/<slug:slug>/', views.WriteReviewView.as_view(), name='write_review'),
     path('index/', views.index_view, name='index'),
@@ -45,6 +45,8 @@ urlpatterns = [
     path('book/', views.book_view, name='book'),
     path('book-timeslot/', views.book_timeslot, name='book_timeslot'),
     path('update-working-hours/', views.update_working_hours, name='update_working_hours'),
+    path('search-barbers/', views.search_barbers, name='search_barbers_url'),
+    path('shop/<slug:slug>/', views.ShopDetailView.as_view(), name='shop_detail'),
 ]
 
 if settings.DEBUG:
