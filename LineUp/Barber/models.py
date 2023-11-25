@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from autoslug import AutoSlugField
 from django.utils.text import slugify
-from django.core.validators import MaxValueValidator, MinValueValidator
 User = settings.AUTH_USER_MODEL
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -13,83 +12,7 @@ from django.db.models import TimeField
 import secrets
 import string
 import random
-
-'''
-class Shop(models.Model):
-    affiliation_code = models.CharField(unique=True, max_length=20)                            # Each shop has this unique code, needed when creating 
-    name = models.CharField(max_length=50)                                                   # Shop name, will be set by shop admin account 
-    location = models.CharField(max_length=60, unique=True)                                    # Shop location, will be set by shop admin account 
-    phone_num = models.CharField(blank=True, null=True, max_length=12)                         # Shop specific phone number, different than personal
-
-
-class Barber(models.Model):
-    # In any of these fields, adjust max_length as needed 
-    username = models.CharField(max_length=30, unique=True, default="Username")                     # Needed when creating account 
-    password = models.CharField(max_length=30, unique=True, default="Password")                         # Needed when creating account 
-    f_name = models.CharField(max_length=30, blank=True, null=True)             # Set after account is created 
-    l_name = models.CharField(max_length=30, blank=True, null=True)             # Set after account is created 
-    email = models.CharField(max_length=30, unique=True, null=True)                        # Needed when creating account 
-    is_owner = models.BooleanField(default=False)                                            # True if owner, False if just barber 
-    profile_pic = models.ImageField(upload_to='images/', blank=True, null=True) # Can change file location and file type 
-    phone_num = models.CharField(blank=True, null=True, max_length=12)                         # Barber personal phone number 
-    #shop = models.ForeignKey(Shop, default="Independent",  on_delete=models.CASCADE)                    # Corresponding shop 
-
-    def __str__(self):
-        return self.barber_name
-
-        
-class Customer(models.Model):
-    # In any of these fields, adjust max_length as needed 
-    username = models.CharField(max_length=30, unique=True, default="Username")                     # Needed when creating account 
-    password = models.CharField(max_length=30, unique=True, default="Password")                     # Needed when creating account 
-    f_name = models.CharField(max_length=30, blank=True, null=True)             # Set after account is created 
-    l_name = models.CharField(max_length=30, blank=True, null=True)             # Set after account is created 
-    email = models.CharField(max_length=30, unique=True, null=True)                        # Needed when creating account 
-    profile_pic = models.ImageField(upload_to='images/', blank=True, null=True) # Can change file location and file type 
-    barber = models.ForeignKey(Barber, on_delete=models.CASCADE)                                          # Corresponding barber 
-    
-    def __str__(self):
-        return f"{self.username}"
-
-        
-class Event(models.Model):
-    date = models.DateField()                                                   # Needed when creating an Event 
-    start_time = models.TimeField()                                             # Needed when creating an Event 
-    end_time = models.TimeField()                                               # Needed when creating an Event  
-    #barber = models.ForeignKey(Barber, blank=False, on_delete=models.CASCADE)                # Barbers 
-    customer = models.ForeignKey(Customer, blank=False, on_delete=models.CASCADE)            # Customers
-
-
-class Service(models.Model):
-    title = models.CharField(max_length=40, unique=True, blank=True)                                                  # Title of service, needed when creating Service 
-    description = models.TextField(blank=True, null=True)                       # Description of service 
-    price = models.FloatField()                                                 # Price of service, needed when creating Service
-    duration = models.IntegerField()                                            # Duration of service, needed when creating Service 
-    #barber = models.ForeignKey(Barber, on_delete=models.CASCADE)                # Corresponding barber
-
-
-class EventService(models.Model):
-    # Events and services have a many to many relationship
-    # Event can have multiple services (i.e. haircut, beard trim)
-    # Service can have multiple events 
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)                                            # Events
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)                                        # Services 
-
-
-class Review(models.Model):
-    date = models.DateField(auto_now_add=True)                                  # Date of review, automatically sent to current date, needed when creating 
-    rating = models.IntegerField()                                              # Rating of review, needed when creating 
-    title = models.CharField(max_length=50, default="Review")                                     # Title of review, needed when creating 
-    description = models.TextField()                                            # Description of review, needed when creating 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)            # Customer that set review 
-    #barber = models.ForeignKey(Barber, blank=False, on_delete=models.CASCADE)                # Barber for review
-
-    def __str__(self):
-        return self.review_title
-'''
-#class Profile(models.Model):
- #   user = models.OneToOneField(User, on_delete=models.CASCADE)
-    #fields = '__all__'
+from django.urls import reverse
 
 # User model
 class User(AbstractUser):    
@@ -108,6 +31,8 @@ class User(AbstractUser):
             return reverse("customerProfileView", kwargs={"slug": self.slug})
         elif self.is_barber:
             return reverse("barberProfileView", kwargs={"slug": self.slug})
+        elif self.is_owner:
+            return reverse("ownerProfileView", kwargs={"slug": self.slug})
 
 # Customer model
 class Customer(models.Model):
@@ -171,6 +96,36 @@ class Shop(models.Model):
             self.slug = slugify(self.affiliation_code)
         super(Shop, self).save(*args, **kwargs)
 
+    
+class TimeSlot(models.Model):
+    barber = models.ForeignKey(Barber, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    is_booked = models.BooleanField(default=False)
+    booked_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='booked_appointments')
+
+    def __str__(self):
+        return f"timeslot: {self.start_time} to {self.end_time}"
+
+class Appointment(models.Model):
+    timeslot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+
+@receiver(post_save, sender=Barber)
+def create_timeslots_for_barber(sender, instance, created, **kwargs):
+    if created:
+        start_date = timezone.now().date()
+        for day_delta in range(7):  # Adjust as needed
+            day = start_date + timedelta(days=day_delta)
+            start_datetime = timezone.make_aware(datetime.combine(day, instance.work_start_time))
+            end_datetime = timezone.make_aware(datetime.combine(day, instance.work_end_time))
+
+            current_time = start_datetime
+            while current_time < end_datetime:
+                timeslot_end = current_time + timedelta(hours=1)
+                TimeSlot.objects.get_or_create(barber=instance, start_time=current_time, end_time=timeslot_end)
+                current_time = timeslot_end
+
 def create_or_update_timeslots_for_barber(barber_instance):
     # Clear existing future timeslots for the barber
     TimeSlot.objects.filter(barber=barber_instance, start_time__gt=timezone.now()).delete()
@@ -187,6 +142,11 @@ def create_or_update_timeslots_for_barber(barber_instance):
             start_time = timezone.make_aware(datetime.combine(day, time(hour, 0)))
             end_time = start_time + timedelta(hours=1)  # 1-hour duration
             TimeSlot.objects.create(barber=barber_instance, start_time=start_time, end_time=end_time)
+
+def create_or_update_timeslots_for_barber(barber_instance):
+    # Define the range of dates to generate timeslots for
+    start_date = timezone.now().date()
+    end_date = start_date + timedelta(days=7)
 
 # Review model
 class Review(models.Model):
@@ -207,30 +167,16 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.customer.username} for {self.barber.user.username}"
 
-# TimeSlot model
-class TimeSlot(models.Model):
-    barber = models.ForeignKey(Barber, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    is_booked = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"Timeslot: {self.start_time} to {self.end_time}"
-
-# Appointment model
-class Appointment(models.Model):
-    timeslot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
-    customer = models.ForeignKey(User, on_delete=models.CASCADE)
-
 # Service model
 class Service(models.Model):
-    barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='barber_services')
+    barber = models.ForeignKey('Barber', on_delete=models.CASCADE, related_name='services', null=True)
     title = models.CharField(max_length=100)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.DurationField()
 
     def __str__(self):
-        return f"{self.title} by {self.barber.user.username}"
+        return f"{self.title} by {self.barber.user.username}" if self.barber else self.title
+    
 
     

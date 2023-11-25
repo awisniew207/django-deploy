@@ -1,23 +1,19 @@
-from django.shortcuts import render
-from django.shortcuts import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import *
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.db.utils import IntegrityError
-from django.db.models import Q
 from django.views.generic.edit import CreateView, UpdateView
 from .forms import *
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView
 from django.contrib.auth.decorators import login_required
 from .models import Customer, Barber
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
+from django.http import JsonResponse, HttpResponseRedirect
 from django.views import View
-from django.shortcuts import get_object_or_404
-from .models import Barber, TimeSlot, create_or_update_timeslots_for_barber
+from .models import Barber, TimeSlot, create_or_update_timeslots_for_barber, Service
 from django.core.serializers import serialize
 import json
 from django.http import JsonResponse
@@ -25,6 +21,14 @@ from django.views.decorators.csrf import csrf_exempt
 import pytz
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import random
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
+from django.shortcuts import render
+from .models import TimeSlot
+from django.utils import timezone
 
 class CustomerSignUpView(CreateView):
     model = Customer
@@ -277,6 +281,7 @@ class OwnerSignUpView(CreateView):
 
 def book_view(request):
     barbers = Barber.objects.all()
+    print("Barbers: ", barbers)
     timeslots_data = {}
 
     for barber in barbers:
@@ -295,9 +300,29 @@ def book_view(request):
 @csrf_exempt
 def book_timeslot(request):
     if request.method == 'POST':
-        # Extract timeslot ID from request and implement booking logic
-        # ...
-        return JsonResponse({'status': 'success', 'message': 'Timeslot booked successfully.'})
+        timeslot_id = request.POST.get('timeslot_id')
+        try:
+            timeslot = TimeSlot.objects.get(pk=timeslot_id)
+            if not timeslot.is_booked:
+                timeslot.is_booked = True
+                timeslot.booked_by = request.user
+                timeslot.save()
+
+                # Notify the barber via email (example)
+                send_mail(
+                    'New Appointment Booking',
+                    f'You have a new appointment booked for {timeslot.start_time}.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [timeslot.barber.user.email],
+                    fail_silently=False,
+                )
+
+                success_url = reverse('booking_success')  # 'booking_success' is the name of your success page URL
+                return JsonResponse({'status': 'success', 'redirect_url': success_url})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'This timeslot is already booked.'}, status=400)
+        except TimeSlot.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Invalid timeslot ID.'}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
@@ -414,6 +439,8 @@ class OwnerUpdateProfile(UpdateView):
 
         return super().form_valid(form)
 
+#    return reverse_lazy('ownerProfileView', kwargs={'slug': self.object.slug})
+            
 class ShopDetailView(DetailView):
     model = Shop
     template_name = 'Barber/shop_detail.html'
@@ -425,6 +452,64 @@ class ShopDetailView(DetailView):
         context['barbers'] = shop.barbers.all()
         return context
 
+def booking_success(request):
+    return render(request, 'Barber/booking_success.html')       
 
+def inbox_view(request):
+    upcoming_appointments = TimeSlot.objects.filter(booked_by=request.user, start_time__gte=timezone.now()).order_by('start_time')
+    print("Upcoming Appointments:", upcoming_appointments)
+    for appointment in upcoming_appointments:
+        print("Appointment:", appointment, "Barber:", appointment.barber.user.get_full_name(), "Start Time:", appointment.start_time)
+    
+    return render(request, 'Barber/inbox.html', {'upcoming_appointments': upcoming_appointments})
 
+def barber_appointments_view(request):
+    if not request.user.is_authenticated or not hasattr(request.user, 'barber'):
+        return redirect('some_login_or_error_page')
+
+    upcoming_appointments = TimeSlot.objects.filter(barber=request.user.barber, start_time__gte=timezone.now()).order_by('start_time')
+    print("Barber's Upcoming Appointments:", upcoming_appointments)  # Debugging statement
+    return render(request, 'Barber/barber_appointments.html', {'upcoming_appointments': upcoming_appointments})
+
+class ManageServicesView(View):
+    model = Service
+    form_class = ServiceForm
+    template_name = 'Barber/manage_services.html'
+    success_url = reverse_lazy('manage_services')
+
+    def form_valid(self, form):
+        # Associate the logged-in barber with the service
+        form.instance.barber = Barber.objects.get(user=self.request.user)
+        return super().form_valid(form)
+
+    def get(self, request, service_id=None):
+        services = Service.objects.all()
+        form = ServiceForm(instance=get_object_or_404(Service, pk=service_id)) if service_id else ServiceForm()
+        return render(request, self.template_name, {'services': services, 'form': form})
+
+    def post(self, request, service_id=None):
+        # Determine the action URL based on whether the form is for adding or editing
+        action_url = reverse('manage_services') if service_id is None else reverse('edit_service', args=[service_id])
         
+        form = ServiceForm(request.POST, instance=get_object_or_404(Service, pk=service_id)) if service_id else ServiceForm(request.POST)
+
+        # Check if the form is valid
+        if form.is_valid():
+            # Get the logged-in barber
+            barber = Barber.objects.get(user=request.user)
+
+            # Set the barber field for the service instance
+            service = form.save(commit=False)
+            service.barber = barber
+            service.save()
+
+            return redirect('manage_services')
+
+        return render(request, self.template_name, {'form': form})
+    
+
+class DeleteServiceView(View):
+    def post(self, request, service_id):
+        service_to_delete = get_object_or_404(Service, pk=service_id)
+        service_to_delete.delete()
+        return HttpResponseRedirect(reverse_lazy('manage_services'))

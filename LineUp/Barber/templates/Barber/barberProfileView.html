@@ -92,16 +92,20 @@
                 <!-- Services Section -->
                 <div class="services-section" style="margin-bottom: 30px;">
                     <h2 class="title is-4">Services</h2>
-                    {% for service in barber.barber_services.all %}
-                        <div class="box">
-                            <p><strong>{{ service.title }}</strong></p>
-                            <p>{{ service.description }}</p>
-                            <p>Duration: {{ service.duration }}</p>
-                            <p>Price: ${{ service.price }}</p>
-                        </div>
-                    {% empty %}
-                        <p>No services listed.</p>
-                    {% endfor %}
+                    {% if barber.services.all %}
+                        <ul>
+                            {% for service in barber.services.all %}
+                                <li>
+                                    <strong>{{ service.title }}</strong>
+                                    <p>{{ service.description }}</p>
+                                    <p>Duration: {{ service.duration }}</p>
+                                    <p>Price: ${{ service.price }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No services available.</p>
+                    {% endif %}
                 </div>
 
                 <!-- Reviews Section -->

@@ -3,13 +3,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.db import transaction
 from .models import User, Customer, Barber, Review, Shop, Owner, Service
-from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
+    
 
 class CustomerSignUpForm(UserCreationForm):
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
-
     email = forms.EmailField(label="Email")
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,6 +39,7 @@ class CustomerSignUpForm(UserCreationForm):
 
         profile.save()
         return user
+     
 
 class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
@@ -76,13 +76,9 @@ class BarberSignUpForm(UserCreationForm):
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
     email = forms.EmailField(label="Email")
     affiliation_code = forms.CharField(label="Affiliation Code", max_length=10, required=False, help_text="Enter your shop's affiliation code if you have one.")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Initialize username and email if instance is available
-        if self.instance:
-            self.fields['username'].initial = self.instance.username
-            self.fields['email'].initial = self.instance.email
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    email = forms.EmailField(label="Email")
 
     class Meta(UserCreationForm.Meta):
         model = User
@@ -92,12 +88,12 @@ class BarberSignUpForm(UserCreationForm):
     def save(self):
         user = super().save(commit=False)
         user.is_barber = True
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
         user.save()
 
         # Create or get a Barber profile
         profile, created = Barber.objects.get_or_create(user=user)
-        profile.first_name = self.cleaned_data.get('first_name', '')
-        profile.last_name = self.cleaned_data.get('last_name', '')
         profile.save()
 
         # If an affiliation code is provided, link the barber to the shop
@@ -145,7 +141,7 @@ class BarberWorkingHoursForm(forms.ModelForm):
     class Meta:
         model = Barber
         fields = ['work_start_time', 'work_end_time']
-#----------------------------------------------------------------------------------------
+
 
 class OwnerSignUpForm(UserCreationForm):
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
@@ -218,7 +214,6 @@ class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
         fields = ['title', 'description', 'price', 'duration']
-        # Add widgets or customize fields as required
 
     def save(self, barber, commit=True):
         service = super().save(commit=False)
@@ -232,4 +227,12 @@ class ServiceForm(forms.ModelForm):
         return service
 
 
+    def clean_duration(self):
+        # Convert the duration to the desired format (in minutes)
+        duration = self.cleaned_data.get('duration')
+        return duration  # Keep it in minutes
 
+    def save(self, commit=True):
+        # Convert the duration to seconds before saving to the database
+        self.instance.duration = self.cleaned_data.get('duration') * 60
+        return super().save(commit)

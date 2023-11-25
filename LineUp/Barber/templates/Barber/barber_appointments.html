@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Your Scheduled Appointments</title>
+    <!-- Include CSS/JS files as needed -->
+</head>
+<body>
+    <h1>Your Scheduled Appointments</h1>
+    {% if upcoming_appointments %}
+        <ul>
+            {% for appointment in upcoming_appointments %}
+                <li>
+                    Appointment with {{ appointment.booked_by.get_full_name }} on {{ appointment.start_time }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No upcoming appointments.</p>
+    {% endif %}
+</body>
+</html>

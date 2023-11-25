@@ -54,6 +54,14 @@
         .list-item:hover {
             background-color: #f5f5f5;
         }
+        .hero.is-danger {
+            background-color: #333; 
+            color: white;
+            min-height: 50px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }        
     </style>
 </head>
 <body>
@@ -61,14 +69,18 @@
         <div class="container">
             <h1 class="title has-text-white">LineUp</h1>
             {% if user.is_authenticated %}
-                <div>Welcome, {{ user.username }}</div>
                 <div>
-                    <a href="{% url 'user_profile_redirect' %}" class="button">Profile</a>
-                    <a href="{% url 'custom_logout' %}" class="button">Logout</a>
+                    <div>Welcome, {{ user.username }}</div>
+                    <div class="block-display">
+                        <a href="{% url 'user_profile_redirect' %}" class="button">Profile</a>
+                        <a href="{% url 'inbox' %}" class="button">Inbox</a>
+                        <a href="{% url 'barber_appointments_view' %}" class="button">View Appointments</a>
+                        <a href="{% url 'custom_logout' %}" class="button">Logout</a>
+                    </div>
                 </div>
             {% endif %}
         </div>
-    </nav>
+    </nav>    
 
     <section id="random-barbers">
         <h2>Featured Barbers</h2>

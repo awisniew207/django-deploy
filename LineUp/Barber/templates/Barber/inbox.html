@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Appointments</title>
+    <!-- Include necessary CSS/JS files -->
+</head>
+<body>
+    <h1>Upcoming Appointments</h1>
+    <ul>
+        {% for appointment in upcoming_appointments %}
+            <li>
+                Appointment with {{ appointment.barber.user.get_full_name }} on {{ appointment.start_time }}
+            </li>
+        {% empty %}
+            <li>No upcoming appointments.</li>
+        {% endfor %}
+    </ul>
+    <!-- Other HTML elements -->
+</body>
+</html>

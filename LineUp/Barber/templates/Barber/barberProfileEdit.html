@@ -78,6 +78,12 @@
                                 </span>
                             </label>
                         </div>
+                        <div class="field">
+                        <a href="{% url 'update_working_hours' %}" class="button is-link">Edit Working Hours</a>
+                        </div>
+                        <div class="field">
+                        <a class="button is-link" href="{% url 'manage_services' %}">Manage Services</a>
+                        </div>
                     </div>
                 </div>
                 <div class="column">
@@ -170,7 +176,6 @@
                 </div>
             </div>
         </form>
-    </div>
 
     <script>
         document.getElementById("profile_pic").addEventListener("change", function () {

@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar'
+    'debug_toolbar',
+    'django_cron'
 ]
 
 MIDDLEWARE = [
@@ -112,6 +113,10 @@ AUTH_PASSWORD_VALIDATORS = [    {
     },
 '''
 
+CRON_CLASSES = [
+    'Barber.cron.UpdateBarberTimeslotsCronJob',
+    'Barber.cron.ClearPastTimeSlotsCronJob',
+]
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -148,3 +153,12 @@ LOGOUT_REDIRECT_URL= 'custom_logout'
 LOGIN_URL = 'login'
 
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend',]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-email-password'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
