@@ -57,7 +57,6 @@ class Barber(models.Model):
             return sum(review.rating for review in reviews) / len(reviews)
         return 0
 
-
 # Owner model
 class Owner(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

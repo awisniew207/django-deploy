@@ -206,16 +206,24 @@ class BarberUpdateProfile(UpdateView):
     template_name = 'Barber/barberProfileEdit.html'
 
     def get_object(self, queryset=None):
-        # Get the User instance for the logged-in barber
-        return get_object_or_404(User, username=self.request.user.username)
+        return get_object_or_404(User, username=self.request.user.username, is_barber=True)
 
     def form_valid(self, form):
-        # Save the user instance
-        form.save()
+        user = form.save(commit=False)
+        affiliation_code = form.cleaned_data.get('affiliation_code')
+        
+        if affiliation_code:
+            try:
+                shop = Shop.objects.get(affiliation_code=affiliation_code)
+                barber_profile = Barber.objects.get(user=user)
+                barber_profile.shops.add(shop)
+            except Shop.DoesNotExist:
+                pass  # Ignore if the shop doesn't exist
+
+        user.save()
         return super().form_valid(form)
 
     def get_success_url(self):
-        # Redirect to the barber's profile page after successful update
         return reverse_lazy('barberProfileView', kwargs={'slug': self.object.slug})
 
 def index_view(request):
@@ -234,11 +242,24 @@ def index_view(request):
 
 def search_barbers(request):
     query = request.GET.get('query', '')
-    # Add your search logic here. For example, you can filter barbers based on the query
+
+    if query:
+        # Filter barbers whose user's username contains the query string
+        barbers = Barber.objects.filter(user__username__icontains=query)
+    else:
+        # If no query is provided, return all barbers
+        barbers = Barber.objects.all()
+
     context = {
-        'barbers': Barbers.objects.filter(name__icontains=query)
+        'barbers': barbers,
+        'query': query  # Include the query in the context to display it in the search bar
     }
-    return render(request, 'path/to/search_template.html', context)
+    return render(request, 'Barber/search_template.html', context)
+
+def search_shops(request):
+    query = request.GET.get('query', '')
+    shops = Shop.objects.filter(name__icontains=query)
+    return render(request, 'Barber/shop_search_template.html', {'shops': shops, 'query': query})
 
 
 def redir_view(request):

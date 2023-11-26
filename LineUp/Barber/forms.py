@@ -107,14 +107,16 @@ class BarberSignUpForm(UserCreationForm):
 
         return user
 
+
 class BarberProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30, required=False)
     last_name = forms.CharField(max_length=30, required=False)
     phone_num = forms.CharField(max_length=12, required=False)
+    affiliation_code = forms.CharField(max_length=10, required=False, help_text="Enter your shop's affiliation code if you have one.")
 
     class Meta:
         model = User
-        fields = ['profile_pic', 'first_name', 'last_name', 'phone_num']
+        fields = ['profile_pic', 'first_name', 'last_name', 'phone_num', 'affiliation_code']
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -122,14 +124,24 @@ class BarberProfileForm(forms.ModelForm):
         user.last_name = self.cleaned_data.get('last_name')
         user.phone_num = self.cleaned_data.get('phone_num')
 
-        # Only update the profile_pic if a new picture is provided
         if 'profile_pic' in self.changed_data:
             user.profile_pic = self.cleaned_data.get('profile_pic')
 
         if commit:
             user.save()
-        return user
 
+            # Handle the affiliation code
+            affiliation_code = self.cleaned_data.get('affiliation_code')
+            if affiliation_code:
+                try:
+                    shop = Shop.objects.get(affiliation_code=affiliation_code)
+                    barber_profile = Barber.objects.get(user=user)
+                    barber_profile.shops.add(shop)
+                except Shop.DoesNotExist:
+                    print("Shop with provided code does not exist")  # You might want to handle this more gracefully
+
+        return user
+            
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
@@ -144,31 +156,26 @@ class BarberWorkingHoursForm(forms.ModelForm):
 
 
 class OwnerSignUpForm(UserCreationForm):
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput, validators=[])
-    email = forms.EmailField(label="Email")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Initialize username and email if instance is available
-        if self.instance:
-            self.fields['username'].initial = self.instance.username
-            self.fields['email'].initial = self.instance.email
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    email = forms.EmailField(label="Email", required=True)
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('email',)
+        fields = UserCreationForm.Meta.fields + ('email', 'first_name', 'last_name')
 
     @transaction.atomic
-    def save(self):
+    def save(self, commit=True):
         user = super().save(commit=False)
         user.is_owner = True
-        user.save()
+        user.email = self.cleaned_data.get('email')
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
 
-        # Create or get a Barber profile
-        profile, created = Owner.objects.get_or_create(user=user)
-        profile.first_name = self.cleaned_data.get('first_name', '')
-        profile.last_name = self.cleaned_data.get('last_name', '')
-        profile.save()
+        if commit:
+            user.save()
+            # Create the Owner profile
+            Owner.objects.create(user=user)
 
         return user
 
@@ -188,12 +195,18 @@ class OwnerProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30, required=False)
     last_name = forms.CharField(max_length=30, required=False)
     phone_num = forms.CharField(max_length=12, required=False)
-    # Add any additional owner-specific fields here
 
     class Meta:
         model = User
         fields = ['profile_pic', 'first_name', 'last_name', 'phone_num']
-        # Include any additional fields in the 'fields' list
+
+    def __init__(self, *args, **kwargs):
+        super(OwnerProfileForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            # Set the initial values for the form fields
+            self.fields['first_name'].initial = self.instance.first_name
+            self.fields['last_name'].initial = self.instance.last_name
+            self.fields['phone_num'].initial = self.instance.phone_num
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -203,8 +216,6 @@ class OwnerProfileForm(forms.ModelForm):
 
         if 'profile_pic' in self.changed_data:
             user.profile_pic = self.cleaned_data.get('profile_pic')
-
-        # Handle any additional owner-specific fields here
 
         if commit:
             user.save()

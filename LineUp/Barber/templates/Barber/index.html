@@ -71,6 +71,14 @@
             {% if user.is_authenticated %}
                 <div>
                     <div>Welcome, {{ user.username }}</div>
+                    <form action="{% url 'search_barbers' %}" method="GET" style="margin-bottom: 0;">
+                        <input type="text" name="query" placeholder="Search barbers..." aria-label="Search">
+                        <button type="submit" class="button is-light">Search</button>
+                    </form>
+                    <form action="{% url 'search_shops' %}" method="GET" style="margin-bottom: 0;">
+                        <input type="text" name="query" placeholder="Search shops..." aria-label="Search">
+                        <button type="submit" class="button is-light">Search</button>
+                    </form>
                     <div class="block-display">
                         <a href="{% url 'user_profile_redirect' %}" class="button">Profile</a>
                         <a href="{% url 'inbox' %}" class="button">Inbox</a>
@@ -95,12 +103,30 @@
                 <!-- Barber's Username and Rating -->
                 <div>
                     <h3><a href="{% url 'barberProfileView' slug=barber.user.slug %}" style="text-decoration: none; color: inherit;">{{ barber.user.username }}</a></h3>
-                    <p>Average Rating: {{ barber.average_rating|floatformat:2 }}/5</p>
+                    <p>Average Rating: {% if barber.average_rating %}{{ barber.average_rating|floatformat:2 }}/5{% else %}No Reviews{% endif %}</p>
                 </div>
             </div>
         {% empty %}
             <p>No barbers found.</p>
         {% endfor %}        
+        </div>
+    </section>
+
+    <section id="featured-shops">
+        <h2>Featured Shops</h2>
+        <div>
+            {% for shop in random_shops %}
+            <div class="shop" style="display: flex; align-items: center; margin-bottom: 15px;">
+        
+                <!-- Shop's Name and Description -->
+                <div>
+                    <h3><a href="{% url 'shop_detail' slug=shop.slug %}" style="text-decoration: none; color: inherit;">{{ shop.name }}</a></h3>
+                    <p>{{ shop.description|truncatewords:10 }}</p>
+                </div>
+            </div>
+            {% empty %}
+                <p>No shops found.</p>
+            {% endfor %}        
         </div>
     </section>    
 

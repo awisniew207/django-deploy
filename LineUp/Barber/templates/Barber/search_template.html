@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            font-family: "Garamond", serif;
+            background-color: white;
+            color: #333;
+        }
+
+        .hero.is-danger {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: black;
+            color: white;
+            border-color: black;
+        }
+
+        .button:hover {
+            background-color: #222;
+            border-color: #222;
+        }
+
+        .search-results {
+            padding: 20px;
+        }
+
+        .search-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .navbar-item, .navbar-burger {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="title has-text-white">Search Results</h1>
+        </div>
+        <div class="column has-text-right">
+            <a href="{% url 'index' %}" class="button">Home</a> <!-- Home Button -->
+        </div>
+    </nav>
+
+    <!-- Search Bar -->
+    <section class="section">
+        <div class="container">
+            <form action="{% url 'search_barbers' %}" method="get">
+                <div class="field has-addons">
+                    <div class="control is-expanded">
+                        <input class="input" type="text" name="query" value="{{ query }}" placeholder="Search for barbers...">
+                    </div>
+                    <div class="control">
+                        <button class="button is-black" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Search Results -->
+    <section class="search-results">
+        <div class="container">
+            <h1 class="title">Search Results</h1>
+            {% if barbers %}
+                {% for barber in barbers %}
+                    <div class="card search-item">
+                        <div class="card-content">
+                            <p class="title">{{ barber.user.get_full_name }}</p>
+                            <p class="subtitle">Username: {{ barber.user.username }}</p>
+                            <a href="{% url 'barberProfileView' slug=barber.user.slug %}" class="button is-black">View Profile</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No barbers found for your query.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>&copy; 2023 LineUp</p>
+        </div>
+    </footer>
+</body>
+</html>

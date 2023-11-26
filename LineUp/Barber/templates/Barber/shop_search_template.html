@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results for Shops</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            font-family: "Garamond", serif;
+            background-color: white;
+            color: #333;
+        }
+
+        .hero.is-danger {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: black;
+            color: white;
+            border-color: black;
+        }
+
+        .button:hover {
+            background-color: #222;
+            border-color: #222;
+        }
+
+        .search-results {
+            padding: 20px;
+        }
+
+        .search-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .navbar-item, .navbar-burger {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="title has-text-white">Search Results for Shops</h1>
+        </div>
+        <div class="column has-text-right">
+            <a href="{% url 'index' %}" class="button">Home</a> <!-- Home Button -->
+        </div>
+    </nav>
+
+    <!-- Search Bar -->
+    <section class="section">
+        <div class="container">
+            <form action="{% url 'search_shops' %}" method="get">
+                <div class="field has-addons">
+                    <div class="control is-expanded">
+                        <input class="input" type="text" name="query" value="{{ query }}" placeholder="Search for shops...">
+                    </div>
+                    <div class="control">
+                        <button class="button is-black" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Search Results -->
+    <section class="search-results">
+        <div class="container">
+            <h1 class="title">Search Results</h1>
+            {% if shops %}
+                {% for shop in shops %}
+                    <div class="card search-item">
+                        <div class="card-content">
+                            <p class="title">{{ shop.name }}</p>
+                            <p class="subtitle">Address: {{ shop.address }}</p>
+                            <a href="{% url 'shop_detail' slug=shop.slug %}" class="button is-black">View Shop</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No shops found for your query.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>&copy; 2023 LineUp</p>
+        </div>
+    </footer>
+</body>
+</html>
