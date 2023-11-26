@@ -40,6 +40,9 @@
                         <h1 class="title">Owner Profile</h1>
                     </div>
                     <div class="column has-text-right">
+                        {% if is_own_profile %}
+                        <a href="{% url 'ownerEditProfileView' slug=owner.user.slug %}" class="button is-light">Edit Profile</a>
+                        {% endif %}
                         <a href="{% url 'index' %}" class="button is-light">Home</a>
                     </div>
                 </div>
@@ -78,14 +81,6 @@
                     <a href="{% url 'shopRegistration' %}" class="button is-primary">Register a New Shop</a>
                 {% endif %}
             </div>
-
-        <div class="column">
-            {% if is_own_profile %}
-                <footer class="has-background-white has-text-black">
-                    <a href="{% url 'ownerEditProfileView' slug=owner.user.slug %}" class="button is-primary">Edit Profile</a>
-                </footer>
-            {% endif %}
-        </div>
     </div>
 </body>
 </html>

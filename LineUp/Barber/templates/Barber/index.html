@@ -62,6 +62,16 @@
             justify-content: center;
             align-items: center;
         }        
+        .title.has-text-white, form, .welcome-message {
+            margin-left: 20px;
+        }
+        .block-display {
+            margin-left: 20px;
+        }
+        .button.is-light {
+            padding: 4px 6px;
+        }
+        
     </style>
 </head>
 <body>
@@ -70,7 +80,7 @@
             <h1 class="title has-text-white">LineUp</h1>
             {% if user.is_authenticated %}
                 <div>
-                    <div>Welcome, {{ user.username }}</div>
+                    <div class="welcome-message">Welcome, {{ user.username }}</div>
                     <form action="{% url 'search_barbers' %}" method="GET" style="margin-bottom: 0;">
                         <input type="text" name="query" placeholder="Search barbers..." aria-label="Search">
                         <button type="submit" class="button is-light">Search</button>

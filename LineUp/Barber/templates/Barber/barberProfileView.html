@@ -49,6 +49,12 @@
         .button.is-primary.visit-shop:hover {
             background-color: #222; /* Slightly lighter black for hover */
         }
+        .profile-actions {
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically */
+            gap: 10px; /* Space between buttons */
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -60,7 +66,10 @@
                         <h1 class="title">{{ barber.user.username }}'s Profile</h1>
                     </div>
                     <div class="column has-text-right">
-                        <a href="{% url 'index' %}" class="button">Home</a> <!-- Home Button -->
+                        {% if is_own_profile %}
+                        <a href="{% url 'barberEditProfileView' slug=barber.user.slug %}" class="button is-light">Edit Profile</a>
+                        {% endif %}
+                        <a href="{% url 'index' %}" class="button is-light">Home</a> 
                     </div>
                 </div>
             </div>
@@ -93,16 +102,14 @@
                 <div class="services-section" style="margin-bottom: 30px;">
                     <h2 class="title is-4">Services</h2>
                     {% if barber.services.all %}
-                        <ul>
-                            {% for service in barber.services.all %}
-                                <li>
-                                    <strong>{{ service.title }}</strong>
-                                    <p>{{ service.description }}</p>
-                                    <p>Duration: {{ service.duration }}</p>
-                                    <p>Price: ${{ service.price }}</p>
-                                </li>
-                            {% endfor %}
-                        </ul>
+                        {% for service in barber.services.all %}
+                            <div class="box">
+                                <h3 class="title is-5">{{ service.title }}</h3>
+                                <p>{{ service.description }}</p>
+                                <p>Duration: {{ service.duration }}</p>
+                                <p>Price: ${{ service.price }}</p>
+                            </div>
+                        {% endfor %}
                     {% else %}
                         <p>No services available.</p>
                     {% endif %}
@@ -161,12 +168,6 @@
                         <p>This barber is independent and not affiliated with a shop.</p>
                     {% endif %}
                 </div>
-
-        {% if is_own_profile %}
-            <footer class="has-background-white has-text-black">
-                <a href="{% url 'barberEditProfileView' slug=barber.user.slug %}" class="button">Edit Profile</a>
-            </footer>
-        {% endif %}
     </div>
 </body>
 </html>
