@@ -4,56 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Write Review for {{ barber.user.username }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <style>
+        body {
+            font-family: "Garamond", serif;
+            background-color: white;
+            color: #333;
+        }
+        .hero.is-danger, .has-background-primary {
+            background-color: #333; /* Change the background color to #333 */
+            color: white; /* Set text color to white for contrast */
+        }
         .navbar {
-            background-color: #333; /* Dark grey background */
+            background-color: #333;
             color: white;
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .navbar-brand {
             font-size: 24px;
             color: white;
         }
+
         .navbar-end {
             display: flex;
         }
-        .button.is-black, .button.is-black:hover {
-            background-color: black;
-            color: white;
-            border: none;
-            margin-left: 10px;
-        }
+        
         .button.is-light, .button.is-light:hover {
             background-color: white;
             color: #333;
             border: none;
         }
+        .button {
+            background-color: #333; /* Set button color */
+            border-color: #333;
+            color: white; /* Set text color for buttons */
+        }
+        .review-form {
+            margin-top: 20px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="navbar-brand">Write a Review</div>
-        <div class="navbar-end">
-            <a class="button is-light" href="{% url 'barberProfileView' slug=barber.user.slug %}">Return to Barber's Page</a>
-            <a class="button is-light" href="{% url 'index' %}">Home</a>
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">Write a Review for {{ barber.user.username }}</h1>
+                    </div>
+                    <div class="column has-text-right">
+                        <a class="button is-light" href="{% url 'barberProfileView' slug=barber.user.slug %}">Return to Barber's Page</a>
+                        <a class="button is-light" href="{% url 'index' %}">Home</a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </nav>
+    </section>
 
     <!-- Review Form Section -->
     <section class="section review-form">
         <div class="container">
-            <h1 class="title">Write a Review for {{ barber.user.username }}</h1>
             
             <form method="post">
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="field">
                         <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }}
+                        <div class="control">
+                            {{ field }}
+                        </div>
                         {% for error in field.errors %}
                             <p class="help is-danger">{{ error }}</p>
                         {% endfor %}
@@ -61,7 +88,7 @@
                 {% endfor %}
                 <div class="field">
                     <div class="control">
-                        <button class="button is-black" type="submit">Submit Review</button>
+                        <button type="submit" class="button">Submit Review</button>
                     </div>
                 </div>
             </form>
