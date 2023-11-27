@@ -74,6 +74,7 @@
                     <p><strong>{{ barber.user.username}}</strong></p>
                     <p><strong>{{ barber.user.get_full_name }}</strong></p>
                     <p>{{ barber.user.phone_num }}</p>
+                    <p><strong>Working Hours:</strong> {{ barber.work_start_time|date:"g:i A" }} - {{ barber.work_end_time|date:"g:i A" }}</p>
                     <a href="{% url 'barberProfileView' slug=barber.user.slug %}" class="button is-primary">View Profile</a>
                 </div>
             </div>
