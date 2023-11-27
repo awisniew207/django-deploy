@@ -1,0 +1,10 @@
+<h2>Barbers at {{ shop.name }}</h2>
+<ul>
+    {% for barber in barbers %}
+    <li>
+        <a href="{% url 'barberProfileView' slug=barber.user.slug %}">{{ barber.user.get_full_name }}</a>
+    </li>
+    {% empty %}
+    <li>No barbers found for this shop.</li>
+    {% endfor %}
+</ul>
