@@ -20,7 +20,7 @@ class User(AbstractUser):
     is_barber = models.BooleanField(default=False)
     is_owner = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
-    profile_pic = models.ImageField(upload_to='uploads/', default='images/PIC_0102.JPG')
+    profile_pic = models.ImageField(upload_to='uploads/', default='images/customer.JPG')
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     phone_num = models.CharField(max_length=12, blank=True)
