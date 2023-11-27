@@ -10,26 +10,26 @@
     <style>
         body {
             font-family: "Garamond", serif;
-            background-color: white; /* Set the background color to white */
-            color: #333; /* Set the text color to #333 */
+            background-color: white; 
+            color: #333; 
         }
 
         .hero.is-danger, .has-background-primary {
-            background-color: #333; /* Change the background color to #333 */
-            color: white; /* Set text color to white for contrast */
+            background-color: #333; 
+            color: white; 
         }
 
         .card {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add some shadow for better visibility */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
         }
 
         .button.is-primary {
-            background-color: #333; /* Set button color */
+            background-color: #333; 
             border-color: #333;
         }
 
         .button.is-primary:hover {
-            background-color: #555; /* Darker shade for hover effect */
+            background-color: #555; 
         }
     </style>
 </head>
@@ -38,6 +38,8 @@
         <div class="hero-body">
             <div class="container">
                 <h1 class="title">{{ shop.name }} Details</h1>
+            <div class="column has-text-right">
+                <a href="{% url 'index' %}" class="button is-light">Home</a> 
             </div>
         </div>
     </section>
@@ -46,7 +48,6 @@
         <!-- Navigation Buttons -->
         <nav class="level">
             <div class="level-left">
-                <a href="{% url 'index' %}" class="button is-light">Home</a>
                 <a href="{% url 'ownerProfileView' slug=shop.owner.user.slug %}" class="button is-light">Owner's Profile</a>
             </div>
         </nav>
@@ -56,6 +57,7 @@
                 <p class="title">{{ shop.name }}</p>
                 <p class="subtitle">{{ shop.address }}</p>
                 <p>{{ shop.description }}</p>
+                <p><strong>Hours:</strong></p>
                 <p><strong>Email:</strong> {{ shop.email }}</p>
                 <p><strong>Phone:</strong> {{ shop.phone_number }}</p>
             </div>
@@ -81,11 +83,5 @@
         
         </div>
     </div>
-
-    <footer class="footer">
-        <div class="content has-text-centered">
-            <p>&copy; 2023 LineUp</p>
-        </div>
-    </footer>
 </body>
 </html>

@@ -63,15 +63,21 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="container">
-            <h1 class="title has-text-white">Search Results</h1>
+    <!-- Nav Bar -->
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title has-text-white">Search Results</h1>
+                    </div>
+                    <div class="column has-text-right">
+                        <a href="{% url 'index' %}" class="button is-light">Home</a> 
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="column has-text-right">
-            <a href="{% url 'index' %}" class="button">Home</a> <!-- Home Button -->
-        </div>
-    </nav>
+    </section>
 
     <!-- Search Bar -->
     <section class="section">
@@ -108,11 +114,5 @@
             {% endif %}
         </div>
     </section>
-
-    <footer class="footer">
-        <div class="content has-text-centered">
-            <p>&copy; 2023 LineUp</p>
-        </div>
-    </footer>
 </body>
 </html>
