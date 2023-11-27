@@ -37,9 +37,14 @@
     <section class="hero is-danger">
         <div class="hero-body">
             <div class="container">
-                <h1 class="title">{{ shop.name }} Details</h1>
-            <div class="column has-text-right">
-                <a href="{% url 'index' %}" class="button is-light">Home</a> 
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">{{ shop.name }} Details</h1>
+                    </div>
+                    <div class="column has-text-right">
+                        <a href="{% url 'index' %}" class="button is-light">Home</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
