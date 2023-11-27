@@ -9,6 +9,11 @@
             font-family: 'Arial', sans-serif;
         }
 
+        .hero.is-danger, .has-background-primary {
+            background-color: #333; /* Change the background color to #333 */
+            color: white; /* Set text color to white for contrast */
+        }
+
         h1 {
             text-align: center;
             color: #333;
@@ -26,10 +31,27 @@
             transition: all 0.3s ease;
         }
 
+        #timeslots {
+            display: flex;
+            flex-direction: column; /* Change flex-direction to column */
+            align-items: center; /* Center the time slots horizontally */
+            margin-top: 20px;
+        }
+        
+        .time-slot {
+            cursor: pointer;
+            border-radius: 8px;
+            border: 1px solid #333;
+            text-align: center;
+            transition: all 0.3s ease;
+            width: 300px; /* Optional: Set a fixed width for each time slot */
+            margin-bottom: 10px; /* Optional: Add some spacing between time slots */
+        }
+        
         .time-slot:hover {
             background-color: #f0f0f0;
         }
-
+        
         .time-slot.taken {
             background-color: grey;
             color: white;
@@ -38,28 +60,32 @@
             pointer-events: none;
         }
 
-        #timeslots {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
         .button {
-            display: block;
-            width: 200px;
-            margin: 20px auto;
-            text-align: center;
+            background-color: #333; /* Set button color */
+            border-color: #333;
+            color: white; /* Set text color for buttons */
         }
     </style>
 </head>
 <body>
-    <h1>Book Your Appointment with {{ barber.user.get_full_name }}</h1>
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">Book Your Appointment with {{ barber.user.get_full_name }}</h1>
+                    </div>
+                    <div class="column has-text-right">
+                        {% if is_own_profile %}
+                        <a href="{% url 'barberEditProfileView' slug=barber.user.slug %}" class="button is-light">Edit Profile</a>
+                        {% endif %}
+                        <a href="{% url 'index' %}" class="button is-light">Home</a> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div>
-        <a href="{% url 'index' %}" class="button is-primary">Home</a>
-    </div>
-    
     <div id="timeslots" data-timeslots='{{ timeslots_data|safe }}'></div>
 
     <script>
@@ -74,28 +100,44 @@
         console.error("Error parsing JSON data:", e);
     }
 
-        if (timeslotsData && Array.isArray(timeslotsData)) {
-            timeslotsData.forEach(function(timeslot) {
-                var slotDiv = document.createElement('div');
-                slotDiv.className = 'time-slot';
-                slotDiv.setAttribute('data-id', timeslot.id);
-
-                var startTime = new Date(timeslot.start_time);
-                var endTime = new Date(timeslot.end_time);
-                var dayString = startTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                slotDiv.innerText = dayString + ' ' + startTime.toLocaleTimeString() + ' - ' + endTime.toLocaleTimeString();
-
-                if (!timeslot.is_booked) {
-                    slotDiv.onclick = function() { bookTime(timeslot.id); };
-                } else {
-                    slotDiv.classList.add('taken');
-                }
-
-                timeslotsDiv.appendChild(slotDiv);
+    if (timeslotsData && Array.isArray(timeslotsData)) {
+        timeslotsData.forEach(function (timeslot) {
+            var slotDiv = document.createElement('div');
+            slotDiv.className = 'time-slot';
+            slotDiv.setAttribute('data-id', timeslot.id);
+    
+            var startTime = new Date(timeslot.start_time);
+            var endTime = new Date(timeslot.end_time);
+            var dayString = startTime.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             });
-        } else {
-            console.error("Invalid or empty timeslots data");
-        }
+    
+            // Create separate elements for day and time
+            var dayElement = document.createElement('div');
+            dayElement.innerText = dayString;
+            var timeElement = document.createElement('div');
+            timeElement.innerText = startTime.toLocaleTimeString() + ' - ' + endTime.toLocaleTimeString();
+    
+            // Append day and time elements to the slotDiv
+            slotDiv.appendChild(dayElement);
+            slotDiv.appendChild(timeElement);
+    
+            if (!timeslot.is_booked) {
+                slotDiv.onclick = function () {
+                    bookTime(timeslot.id);
+                };
+            } else {
+                slotDiv.classList.add('taken');
+            }
+    
+            timeslotsDiv.appendChild(slotDiv);
+        });
+    } else {
+        console.error("Invalid or empty timeslots data");
+    }
 
 
         // Iterate over each timeslot and create its display element
