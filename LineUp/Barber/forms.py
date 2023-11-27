@@ -229,10 +229,10 @@ class ServiceForm(forms.ModelForm):
     def save(self, barber, commit=True):
         service = super().save(commit=False)
         service.barber = barber  # Set the barber for the service
-        service.description = description
-        service.title = title
-        service.price = price
-        service.duration = duration
+        service.description = self.description
+        service.title = self.title
+        service.price = self.price
+        service.duration = self.duration
         service.save()
         
         return service
