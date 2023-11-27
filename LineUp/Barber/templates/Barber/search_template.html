@@ -103,8 +103,9 @@
                 {% for barber in barbers %}
                     <div class="card search-item">
                         <div class="card-content">
-                            <p class="title">{{ barber.user.get_full_name }}</p>
-                            <p class="subtitle">Username: {{ barber.user.username }}</p>
+                            <p class="title">{{ barber.user.username }}</p> 
+                            <p class="subtitle">Name: {{barber.user.get_full_name}}</p>
+                            <p class="subtitle">Email: {{ barber.user.email}}</p>
                             <a href="{% url 'barberProfileView' slug=barber.user.slug %}" class="button is-black">View Profile</a>
                         </div>
                     </div>
