@@ -1,21 +1,110 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Scheduled Appointments</title>
-    <!-- Include CSS/JS files as needed -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            font-family: "Garamond", serif;
+            background-color: white;
+            color: #333;
+        }
+
+        .hero.is-danger,
+        .has-background-primary {
+            background-color: #333;
+            color: white;
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: #333;
+            border-color: #333;
+            color: white;
+        }
+
+        .button:hover {
+            background-color: #555;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button.is-primary.visit-shop {
+            background-color: black;
+            border-color: black;
+            color: white;
+        }
+
+        .button.is-primary.visit-shop:hover {
+            background-color: #222;
+        }
+
+        .reviewer-profile-pic {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Your Scheduled Appointments</h1>
-    {% if upcoming_appointments %}
-        <ul>
-            {% for appointment in upcoming_appointments %}
-                <li>
-                    Appointment with {{ appointment.booked_by.get_full_name }} on {{ appointment.start_time }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No upcoming appointments.</p>
-    {% endif %}
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">Your Scheduled Appointments</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container mt-4">
+        <div class="columns">
+            <div class="column">
+                {% if upcoming_appointments %}
+                <ul>
+                    {% for appointment in upcoming_appointments %}
+                    <li>
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <figure class="image is-64x64">
+                                            <img src="{% if appointment.booked_by.profile_pic %}{{ appointment.booked_by.profile_pic.url }}{% else %}default-profile.jpg{% endif %}" alt="User Profile Picture" class="reviewer-profile-pic">
+                                        </figure>
+                                    </div>
+                                    <div class="media-content">
+                                        <p class="title">{{ appointment.booked_by.get_full_name }}</p>
+                                        <p class="subtitle">Appointment on {{ appointment.start_time }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No upcoming appointments.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>
