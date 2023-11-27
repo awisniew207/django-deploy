@@ -89,19 +89,19 @@
 
             <!-- List of Existing Services -->
             {% if services %}
-                <h3 class="subtitle">Existing Services</h3>
-                <ul>
-                    {% for service in services %}
-                        <li class="service-list-item">
-                            {{ service.title }} - {{ service.price }}
-                            <a href="{% url 'edit_service' service.id %}" class="button is-primary is-small">Edit</a>
-                            <form method="post" action="{% url 'delete_service' service.id %}" style="display:inline;" class="edit-delete-buttons">
-                                {% csrf_token %}
-                                <button type="submit" class="button is-danger is-small">Delete</button>
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
+            <h3 class="subtitle">Existing Services</h3>
+            <ul>
+                {% for service in services %}
+                    <li class="service-list-item">
+                        {{ service.title }} - {{ service.price }}
+                        <a href="{% url 'edit_service' service.id %}" class="button is-primary is-small">Edit</a>
+                        <form method="post" action="{% url 'delete_service' service.id %}" style="display:inline;" class="edit-delete-buttons">
+                            {% csrf_token %}
+                            <button type="submit" class="button is-danger is-small">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
             {% else %}
                 <p>No services available.</p>
             {% endif %}
