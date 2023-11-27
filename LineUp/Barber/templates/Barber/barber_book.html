@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Book An Appointment with {{ barber.user.get_full_name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+    <style>
+        body {
+            background-color: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+            font-size: 2em;
+        }
+
+        .time-slot {
+            cursor: pointer;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .time-slot:hover {
+            background-color: #f0f0f0;
+        }
+
+        .time-slot.taken {
+            background-color: grey;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        #timeslots {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Book Your Appointment with {{ barber.user.get_full_name }}</h1>
+
+    <div>
+        <a href="{% url 'index' %}" class="button is-primary">Home</a>
+    </div>
+    
+    <div id="timeslots" data-timeslots='{{ timeslots_data|safe }}'></div>
+
+    <script>
+        console.log("Raw Timeslots Data:", '{{ timeslots_data|safe }}');
+        var timeslotsDiv = document.getElementById('timeslots');
+        var timeslotsData = JSON.parse(timeslotsDiv.getAttribute('data-timeslots'));
+        try {
+        //var timeslotsData = JSON.parse('{{ timeslots_data|safe }}');
+        
+        console.log("Parsed Timeslots Data:", timeslotsData);
+    } catch (e) {
+        console.error("Error parsing JSON data:", e);
+    }
+
+        if (timeslotsData && Array.isArray(timeslotsData)) {
+            timeslotsData.forEach(function(timeslot) {
+                var slotDiv = document.createElement('div');
+                slotDiv.className = 'time-slot';
+                slotDiv.setAttribute('data-id', timeslot.id);
+
+                var startTime = new Date(timeslot.start_time);
+                var endTime = new Date(timeslot.end_time);
+                var dayString = startTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                slotDiv.innerText = dayString + ' ' + startTime.toLocaleTimeString() + ' - ' + endTime.toLocaleTimeString();
+
+                if (!timeslot.is_booked) {
+                    slotDiv.onclick = function() { bookTime(timeslot.id); };
+                } else {
+                    slotDiv.classList.add('taken');
+                }
+
+                timeslotsDiv.appendChild(slotDiv);
+            });
+        } else {
+            console.error("Invalid or empty timeslots data");
+        }
+
+
+        // Iterate over each timeslot and create its display element
+        
+        function bookTime(timeslotId) {
+            const timeslotElement = document.querySelector('.time-slot[data-id="' + timeslotId + '"]');
+
+            // Add a class to show it's being processed (you can style this class as you like)
+            timeslotElement.classList.add('processing');
+
+            fetch("{% url 'book_timeslot' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: 'timeslot_id=' + timeslotId
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    // Redirect to the success page URL provided by the backend
+                    window.location.href = data.redirect_url;
+                } else {
+                    // Handle other responses (e.g., timeslot already booked)
+                    alert(data.message);
+                    timeslotElement.classList.remove('processing');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                timeslotElement.classList.remove('processing');
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

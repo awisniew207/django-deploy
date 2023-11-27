@@ -42,7 +42,8 @@ urlpatterns = [
     path('index/', views.index_view, name='index'),
     path('', views.redir_view, name='redir'),    
     path('__debug__/', include(debug_toolbar.urls)),
-    path('book/', views.book_view, name='book'),
+    #path('book/', views.book_view, name='book'),
+    path('barber_book/<slug:barber_slug>', views.barber_book_view, name='barber_book'),
     path('book-timeslot/', views.book_timeslot, name='book_timeslot'),
     path('update-working-hours/', views.update_working_hours, name='update_working_hours'),
     path('search-barbers/', views.search_barbers, name='search_barbers'),
@@ -54,6 +55,8 @@ urlpatterns = [
     path('manage_services/', views.ManageServicesView.as_view(), name='manage_services'),
     path('edit_service/<int:service_id>/', views.ManageServicesView.as_view(), name='edit_service'),
     path('manage_services/<int:service_id>/delete/', views.DeleteServiceView.as_view(), name='delete_service'),
+    path('not_a_barber/', views.not_a_barber_view, name='not_a_barber'),
+    path('shop/<int:shop_id>/barbers/', views.barbers_list_view, name='barbers_list'),
 ]
 
 if settings.DEBUG:

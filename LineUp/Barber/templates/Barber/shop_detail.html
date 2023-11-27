@@ -37,9 +37,14 @@
     <section class="hero is-danger">
         <div class="hero-body">
             <div class="container">
-                <h1 class="title">{{ shop.name }} Details</h1>
-            <div class="column has-text-right">
-                <a href="{% url 'index' %}" class="button is-light">Home</a> 
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">{{ shop.name }} Details</h1>
+                    </div>
+                    <div class="column has-text-right">
+                        <a href="{% url 'index' %}" class="button is-light">Home</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -49,6 +54,7 @@
         <nav class="level">
             <div class="level-left">
                 <a href="{% url 'ownerProfileView' slug=shop.owner.user.slug %}" class="button is-light">Owner's Profile</a>
+                <a href="{% url 'barbers_list' shop.id %}" class="button is-light">Available Barbers! BOOK NOW!</a>
             </div>
         </nav>
 

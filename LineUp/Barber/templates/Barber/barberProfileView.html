@@ -88,7 +88,7 @@
                 <!-- Action Buttons -->
                 <div class="profile-actions">
                     {% if not is_own_profile %}
-                    <form action="{% url 'book' %}" method="get">
+                    <form action="{% url 'barber_book' barber.user.slug %}" method="get">
                         <button type="submit" class="button">Book</button>
                     </form>
                         <form action="{% url 'write_review' barber.user.slug %}" method="get">

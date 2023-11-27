@@ -484,13 +484,22 @@ def inbox_view(request):
     
     return render(request, 'Barber/inbox.html', {'upcoming_appointments': upcoming_appointments})
 
+
 def barber_appointments_view(request):
     if not request.user.is_authenticated or not hasattr(request.user, 'barber'):
-        return redirect('some_login_or_error_page')
+        # Handle unauthorized access or if the user is not a barber
+        return redirect('not_a_barber')
 
-    upcoming_appointments = TimeSlot.objects.filter(barber=request.user.barber, start_time__gte=timezone.now()).order_by('start_time')
-    print("Barber's Upcoming Appointments:", upcoming_appointments)  # Debugging statement
-    return render(request, 'Barber/barber_appointments.html', {'upcoming_appointments': upcoming_appointments})
+    # Only retrieve timeslots that are booked and in the future
+    upcoming_booked_appointments = TimeSlot.objects.filter(
+        barber=request.user.barber, 
+        is_booked=True, 
+        start_time__gte=timezone.now()
+    ).order_by('start_time')
+
+    return render(request, 'Barber/barber_appointments.html', {
+        'upcoming_appointments': upcoming_booked_appointments
+    })
 
 class ManageServicesView(View):
     model = Service
@@ -533,3 +542,51 @@ class DeleteServiceView(View):
         service_to_delete = get_object_or_404(Service, pk=service_id)
         service_to_delete.delete()
         return HttpResponseRedirect(reverse_lazy('manage_services'))
+    
+def not_a_barber_view(request):
+    return render(request, 'Barber/not_a_barber.html')
+
+def barbers_list_view(request, shop_id):
+   shop = get_object_or_404(Shop, id=shop_id)
+   barbers = Barber.objects.filter(shops=shop)
+   return render(request, 'Barber/barbers_list.html', {'barbers': barbers, 'shop': shop})
+
+
+def barber_book_view(request, barber_slug):
+   barber = get_object_or_404(Barber, user__slug=barber_slug)
+   timeslots = TimeSlot.objects.filter(barber=barber, is_booked=False)
+
+
+   # Custom serialization
+   timeslots_data = [
+       {
+           "id": timeslot.id,
+           "start_time": timeslot.start_time.isoformat(),
+           "end_time": timeslot.end_time.isoformat(),
+           "is_booked": timeslot.is_booked,
+           "booked_by": timeslot.booked_by.id if timeslot.booked_by else None
+       } for timeslot in timeslots
+   ]
+
+
+   context = {
+       'barber': barber,
+       'timeslots_data': json.dumps(timeslots_data)
+   }
+
+
+   return render(request, 'Barber/barber_book.html', context)
+
+
+def scheduled_appointments_view(request):
+   if request.user.is_owner:  # Check if user is an owner
+       barbers = Barber.objects.filter(shop=request.user.shop)  # Assuming a 'shop' relationship
+       appointments = []
+       for barber in barbers:
+           barber_appointments = TimeSlot.objects.filter(barber=barber, start_time__gte=timezone.now())
+           appointments.extend(barber_appointments)
+   else:
+       appointments = TimeSlot.objects.filter(barber=request.user.barber, start_time__gte=timezone.now())
+  
+   context = {'upcoming_appointments': appointments}
+   return render(request, 'Barber/barber_appointments.html', context)
