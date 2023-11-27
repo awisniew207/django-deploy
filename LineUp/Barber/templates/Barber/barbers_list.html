@@ -1,10 +1,122 @@
-<h2>Barbers at {{ shop.name }}</h2>
-<ul>
-    {% for barber in barbers %}
-    <li>
-        <a href="{% url 'barberProfileView' slug=barber.user.slug %}">{{ barber.user.get_full_name }}</a>
-    </li>
-    {% empty %}
-    <li>No barbers found for this shop.</li>
-    {% endfor %}
-</ul>
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbers at {{ shop.name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            font-family: "Garamond", serif;
+            background-color: white;
+            color: #333;
+        }
+
+        .hero.is-danger,
+        .has-background-primary {
+            background-color: #333;
+            color: white;
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: #333;
+            border-color: #333;
+            color: white;
+        }
+
+        .button:hover {
+            background-color: #555;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button.is-primary.visit-shop {
+            background-color: black;
+            border-color: black;
+            color: white;
+        }
+
+        .button.is-primary.visit-shop:hover {
+            background-color: #222;
+        }
+
+        .reviewer-profile-pic {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .barbers-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .barber-item {
+            margin-bottom: 10px;
+        }
+
+        .barber-link {
+            color: #3273dc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .barber-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">Barbers at {{ shop.name }}</h1>
+                    </div>
+                    <a href="{% url 'index' %}" class="button is-light">Home</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container mt-4">
+        <div class="columns is-multiline">
+            {% for barber in shop.barbers.all %}
+            <div class="column is-one-third">
+                <div class="card">
+                    <div class="card-content">
+                        <figure class="image is-128x128">
+                            <img src="{{ barber.user.profile_pic.url }}" alt="Barber's Profile Picture">
+                        </figure>
+                        <p class="title is-5">{{ barber.user.get_full_name }}</p>
+                        <p>{{ barber.user.phone_num }}</p>
+                        <p><strong>Working Hours:</strong> {{ barber.work_start_time|date:"g:i A" }} - {{ barber.work_end_time|date:"g:i A" }}</p>
+                        <a href="{% url 'barber_book' barber_slug=barber.user.slug %}" class="button">Book</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="column">
+                <p>No barbers listed.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>
