@@ -87,9 +87,8 @@
                 <p><strong>Phone Number: </strong>{{ barber.user.phone_num }}</p>
                 <!-- Action Buttons -->
                 <div class="profile-actions">
-                    <form action="{% url 'book' %}" method="get">
                     {% if not is_own_profile %}
-                    <form action="">
+                    <form action="{% url 'book' %}" method="get">
                         <button type="submit" class="button">Book</button>
                     </form>
                         <form action="{% url 'write_review' barber.user.slug %}" method="get">
