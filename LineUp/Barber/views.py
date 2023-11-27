@@ -513,8 +513,13 @@ class ManageServicesView(View):
         return super().form_valid(form)
 
     def get(self, request, service_id=None):
-        services = Service.objects.all()
+        # Filter services based on the logged-in barber
+        barber = Barber.objects.get(user=request.user)
+        services = Service.objects.filter(barber=barber)
+
+        # Create the form
         form = ServiceForm(instance=get_object_or_404(Service, pk=service_id)) if service_id else ServiceForm()
+
         return render(request, self.template_name, {'services': services, 'form': form})
 
     def post(self, request, service_id=None):
