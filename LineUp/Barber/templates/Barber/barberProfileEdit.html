@@ -43,19 +43,24 @@
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar" style="background-color: #333; color: white; padding: 10px 0;">
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-            <span class="navbar-item" style="font-size: 1.5em;">Edit Profile</span>
-            <div>
-                {% if barber and barber.user %}
-                    <a class="navbar-item" href="{% url 'barberProfileView' slug=barber.user.slug %}" style="color: white; margin-right: 20px;">Back to Profile</a>
-                {% else %}
-                    <a class="navbar-item" href="{% url 'index' %}" style="color: white; margin-right: 20px;">Home</a> <!-- Fallback link -->
-                {% endif %}
+    <section class="hero is-danger">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column">
+                        <h1 class="title">Edit Profile</h1>
+                    </div>
+                    <div class="column has-text-right">
+                    {% if barber and barber.user %}
+                    <a class="navbar-item" href="{% url 'barberProfileView' slug=barber.user.slug %}" style="button is-light">Back to Profile</a>
+                    {% else %}
+                    <a href="{% url 'index' %}" class="button is-light">Home</a> 
+                    {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
-
+    </section>
 
     <div class="container mt-4">
         
