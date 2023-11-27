@@ -16,15 +16,18 @@
 
     <section class="section signup-container">
         <div class="container">
-            <!-- Customer Sign Up section -->
             <h1 class="title has-text-white">Login</h1>
 
             <form method="post" action="{% url 'login' %}" class="form">
                 {% csrf_token %}
+                
                 <div class="field">
                     <label class="label has-text-white" for="username">Username</label>
                     <div class="control">
                         <input class="input" type="text" id="username" name="username" required>
+                        {% if form.username.errors %}
+                            <p class="help is-danger">{{ form.username.errors|first }}</p>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -32,6 +35,9 @@
                     <label class="label has-text-white" for="password">Password</label>
                     <div class="control">
                         <input class="input" type="password" id="password" name="password" required>
+                        {% if form.password.errors %}
+                            <p class="help is-danger">{{ form.password.errors|first }}</p>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -47,20 +53,31 @@
                         <a href="{% url 'redir' %}" class="button is-link">Go to Redirection Page</a>
                     </div>
                 </div>
-            
             </form>
-            
-            <!-- Form Errors -->
-            {% if form.errors %}
-            <div class="notification is-danger">
-                <ul>
-                    {% for field, errors in form.errors.items %}
-                        <li>{{ field }}: {{ errors }}</li>
-                    {% endfor %}
-                </ul>
+
+            <!-- Non-Field Form Errors -->
+            {% if form.non_field_errors %}
+            <div class="notification" style="background-color: black; color: white;">
+                <strong>Form Error:</strong>
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
             </div>
+            {% else %}
+                <!-- Field-Specific Form Errors -->
+                {% if form.errors %}
+                <div class="notification is-danger">
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            <li><strong>{{ field|capfirst }}:</strong> {{ errors|first }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
             {% endif %}
         </div>
     </section>
 </body>
 </html>
+
+

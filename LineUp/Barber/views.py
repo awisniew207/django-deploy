@@ -528,7 +528,6 @@ class ManageServicesView(View):
 
         return render(request, self.template_name, {'form': form})
     
-
 class DeleteServiceView(View):
     def post(self, request, service_id):
         service_to_delete = get_object_or_404(Service, pk=service_id)
