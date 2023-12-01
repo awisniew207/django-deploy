@@ -365,14 +365,7 @@ def update_working_hours(request):
 def convert_utc_to_pacific(utc_time):
     pacific_zone = pytz.timezone('America/Los_Angeles')
     return utc_time.astimezone(pacific_zone)
-'''
-def update_or_create_barber_timeslots(barber):
-    # Logic to update/create timeslots based on the barber's new working hours
-    # For example, delete existing timeslots and create new ones
-    # within the new working hours timeframe
-    TimeSlot.objects.filter(barber=barber).delete()
-    create_or_update_timeslots_for_barber(barber)
-    '''
+
 
 class OwnerSignUpView(CreateView):
     model = Owner

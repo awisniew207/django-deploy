@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ barber.user.get_full_name }}'s Services</title>
+</head>
+<body>
+    <h1>Services Offered by {{ barber.user.get_full_name }}</h1>
+    {% if services %}
+        <ul>
+            {% for service in services %}
+                <li>
+                    <strong>{{ service.title }}</strong><br>
+                    {{ service.description }}<br>
+                    Price: {{ service.price }}<br>
+                    Duration: {{ service.duration }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No services available.</p>
+    {% endif %}
+</body>
+</html>

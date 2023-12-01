@@ -142,10 +142,6 @@ def create_or_update_timeslots_for_barber(barber_instance):
             end_time = start_time + timedelta(hours=1)  # 1-hour duration
             TimeSlot.objects.create(barber=barber_instance, start_time=start_time, end_time=end_time)
 
-def create_or_update_timeslots_for_barber(barber_instance):
-    # Define the range of dates to generate timeslots for
-    start_date = timezone.now().date()
-    end_date = start_date + timedelta(days=7)
 
 # Review model
 class Review(models.Model):
